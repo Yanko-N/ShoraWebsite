@@ -1,0 +1,22 @@
+﻿@model shora.Models.Categoria
+<head>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ShoraWebsite.styles.css" asp-append-version="true" />
+</head>
+<h3>De certeza que queres Apagar :</h3>
+<div>
+
+    <hr />
+    <h4 style="justify-content:left">@Html.DisplayFor(model => model.Tipo)</h4>
+
+</div>
+<div class="pad">
+    <form asp-action="Apagar" style="padding:5">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Apagar" class=botaoDanger nav-link" />
+
+    </form>
+</div>
+<div class="pad">
+    <a asp-action="Listagem" class="botao nav-link">Voltar a lista de Categorias  </a>
+</div>

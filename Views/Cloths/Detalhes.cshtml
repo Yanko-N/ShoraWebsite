@@ -1,0 +1,60 @@
+﻿@model shora.Models.Roupa
+<head>
+    <link rel="stylesheet" href="~/css/carouselStyleSheet.css" asp-append-version="true" />
+</head>
+<div>
+    <h4>Roupa</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Categoria)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Categoria.Tipo)
+        </dd>
+
+
+    </dl>
+</div>
+<div>
+    <section class="container">
+        <div class="slider-wrapper">
+            <div class="slider">
+                @{
+                    int count = 0;
+                    foreach (var f in ViewBag.fotos)
+                    {
+
+                        string s = "/Documentos/FotosRoupa/" + Model.Name + "/" + f;
+                        <img id="slide-@count" src="@s">
+                        count++;
+
+                    }
+                }
+            </div>
+            <div class="slider-nav">
+                @{
+                    int id = 0;
+                    foreach (var f in ViewBag.fotos)
+                    {
+
+                        <a href="#slide-@id"></a>
+                        id++;
+                    }
+                }
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<div>
+
+    <a asp-action="Listagem" class="botao nav-link">Voltar a Lista de Roupa</a>
+</div>

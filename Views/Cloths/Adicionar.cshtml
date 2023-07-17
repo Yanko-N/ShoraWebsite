@@ -1,0 +1,42 @@
+﻿@model shora.Models.Roupa
+
+<h4>Adicionar nova peça de roupa</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4 ">
+        <form asp-action="Adicionar" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                Nome do Item
+                <input asp-for="Name"  class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                Categoria
+                <select asp-for="CategoriaId" class ="form-control" asp-items="ViewBag.CategoriaId"></select>
+            </div>
+            
+           
+            <div class="form-group" >
+                <label asp-for="Foto" class="control-label"></label>
+                <input asp-for="Foto" class="form-control" type="file" multiple/>
+                <span asp-validation-for="Foto" class="text-danger"></span>
+            </div>
+           
+            <div class="form-group pad">
+                <input type="submit" value="Adicionar" class="botaoDanger nav-link" />
+            </div>
+        </form>
+
+        <div class="pad">
+            <a asp-action="Listagem" class="botao nav-link ">Voltar a Lista de Roupa</a>
+        </div>
+       
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

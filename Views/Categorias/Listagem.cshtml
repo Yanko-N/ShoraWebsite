@@ -1,0 +1,56 @@
+﻿@model IEnumerable<shora.Models.Categoria>
+
+<style>
+    .tab {
+        display: inline-block;
+        padding = 4;
+    }
+</style>
+
+<h2> Lista de Categorias</h2>
+
+<p>
+    <a asp-action="Adicionar">
+        <img src="/Documentos/Icons/add.png" height="30" width="30" />
+    </a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Tipo)
+            </th>
+            <th width="30"></th>
+            <th width="30"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td width="150px">
+                    @Html.DisplayFor(modelItem => item.Tipo)
+                </td>
+
+                <td>
+
+                    <a asp-action="Editar" asp-route-id="@item.Id">
+                        <img src="/Documentos/Icons/edit.png" height="30" width="30" />
+                    </a>
+
+                </td>
+
+                <td>
+                    <a asp-action="Apagar" asp-route-id="@item.Id">
+                        <img src="/Documentos/Icons/delete.png" height="30" width="30" />
+                    </a>
+
+
+
+
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>

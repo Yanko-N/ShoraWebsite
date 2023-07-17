@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoraWebsite", "ShoraWebsite.csproj", "{856F7233-EA15-4A02-B64F-57C5FC34967E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{856F7233-EA15-4A02-B64F-57C5FC34967E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{856F7233-EA15-4A02-B64F-57C5FC34967E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{856F7233-EA15-4A02-B64F-57C5FC34967E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{856F7233-EA15-4A02-B64F-57C5FC34967E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DDF5E8D5-4270-4611-BBC1-C53701A2F739}
+	EndGlobalSection
+EndGlobal

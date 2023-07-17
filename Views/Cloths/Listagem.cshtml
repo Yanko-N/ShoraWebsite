@@ -1,0 +1,59 @@
+﻿@model IEnumerable<shora.Models.Roupa>
+
+
+<h2> Lista de Roupa</h2>
+<p>
+    <a asp-action="Adicionar">
+        <img src="/Documentos/Icons/add.png" height="30" width="30" />
+    </a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Categoria)
+            </th>
+
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Categoria.Tipo)
+                </td>
+
+                <td>
+
+                    <a asp-action="Editar" asp-route-id="@item.Id">
+                        <img src="/Documentos/Icons/edit.png" height="30" width="30" />
+                    </a>
+
+                </td>
+
+                <td>
+                    <a asp-action="Apagar" asp-route-id="@item.Id">
+                        <img src="/Documentos/Icons/delete.png" height="30" width="30" />
+                    </a>
+
+                </td>
+                <td>
+                    <a asp-action="Detalhes" asp-route-id="@item.Id">
+                        Detalhes
+                    </a>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

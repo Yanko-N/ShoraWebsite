@@ -1,0 +1,31 @@
+﻿@model shora.Models.Categoria
+<style>
+    .pad{
+        padding : 5px;
+    }
+</style>
+<h4>Adicionar nova Categoria</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4 pad">
+        <form asp-action="Adicionar">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Tipo" class="control-label"></label>
+                <input asp-for="Tipo" class="form-control" />
+                <span asp-validation-for="Tipo" class="text-danger"></span>
+            </div>
+            <div class="form-group pad" >
+                <input type="submit" value="Adicionar" class="botaoDanger nav-link" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Listagem" class="botao nav-link">Voltar a lista de Categorias</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
