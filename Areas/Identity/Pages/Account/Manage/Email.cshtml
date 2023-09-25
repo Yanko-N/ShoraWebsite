@@ -11,12 +11,12 @@
     <div class="col-md-6">
         <form id="email-form" method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-floating">
-                <input asp-for="Input.NewEmail" class="form-control" autocomplete="email" aria-required="true" />
-                <label asp-for="Input.NewEmail" class="form-label"></label>
-                <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
+            <div class="form-floating pad">
+                <input asp-for="Input.NewEmail" class="form-control " autocomplete="email" aria-required="true" />
+                <label asp-for="Input.NewEmail" class="form-label "></label>
+                <span asp-validation-for="Input.NewEmail" class="text-danger "></span>
             </div>
-            <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="botao nav-link">Guardar Alterações</button>
+            <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="botao nav-link ">Guardar Alterações</button>
         </form>
     </div>
 </div>

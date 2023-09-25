@@ -4,14 +4,17 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace ShoraWebsite.Areas.Identity.Pages.Account.Manage
 {
@@ -72,6 +75,10 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account.Manage
             [Display(Name = "Novo Email")]
             public string NewEmail { get; set; }
         }
+
+
+
+        
 
         private async Task LoadAsync(IdentityUser user)
         {

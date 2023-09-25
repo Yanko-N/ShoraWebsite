@@ -74,6 +74,10 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
+
+            [Required]
+            [Display(Name ="Username")]
+            public string UserName { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -118,7 +122,7 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
-                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+                await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
@@ -129,10 +133,10 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
                     await _signInManager.SignInAsync(user, isPersistent: true);
 
                     //Conta Criada a partir daqui
-                    await _userManager.AddToRoleAsync(user, "Cliente"); //adicionar o utilizador ao role Cliente
+                    await _userManager.AddToRoleAsync(user, "Admin"); //adicionar o utilizador ao role Cliente
 
                     ////Tem de se criar aqui o utilizador perfil
-                    //_applicationDbContext.Perfil.Add(new Models.Perfil
+                    //_applicationDbContext.Perfis.Add(new Models.Perfil
                     //{
                     //    User = user,
                     //    UserId = user.Id

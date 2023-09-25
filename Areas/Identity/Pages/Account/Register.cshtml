@@ -5,25 +5,7 @@
 }
 
 <head>
-    <style>
-
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        .imgbox {
-            display: grid;
-            height: 100%;
-            padding-top: 25px;
-        }
-
-        .center-fit {
-            max-width: 100%;
-            max-height: 100vh;
-            margin: auto;
-        }
-    </style>
+   
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
 </head>
@@ -36,6 +18,11 @@
 
                 <hr />
                 <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.UserName" class="form-control" autocomplete="username" aria-required="true" placeholder="ShoraFam" />
+                    <label asp-for="Input.UserName">UserName</label>
+                    <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                </div>
                 <div class="form-floating mb-3">
                     <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="shora@example.com" />
                     <label asp-for="Input.Email">Email</label>

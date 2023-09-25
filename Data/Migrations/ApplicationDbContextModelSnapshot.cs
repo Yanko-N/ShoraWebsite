@@ -241,6 +241,54 @@ namespace ShoraWebsite.Data.Migrations
                     b.ToTable("Categoria");
                 });
 
+            modelBuilder.Entity("shora.Models.Perfil", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Perfils");
+                });
+
+            modelBuilder.Entity("shora.Models.Reserva", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("PerfilId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoupaId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PerfilId");
+
+                    b.HasIndex("RoupaId");
+
+                    b.ToTable("Reserva");
+                });
+
             modelBuilder.Entity("shora.Models.Roupa", b =>
                 {
                     b.Property<int>("Id")
@@ -317,6 +365,34 @@ namespace ShoraWebsite.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("shora.Models.Perfil", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("shora.Models.Reserva", b =>
+                {
+                    b.HasOne("shora.Models.Perfil", "Perfil")
+                        .WithMany("Reservas")
+                        .HasForeignKey("PerfilId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("shora.Models.Roupa", "Roupa")
+                        .WithMany()
+                        .HasForeignKey("RoupaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Perfil");
+
+                    b.Navigation("Roupa");
+                });
+
             modelBuilder.Entity("shora.Models.Roupa", b =>
                 {
                     b.HasOne("shora.Models.Categoria", "Categoria")
@@ -326,6 +402,11 @@ namespace ShoraWebsite.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Categoria");
+                });
+
+            modelBuilder.Entity("shora.Models.Perfil", b =>
+                {
+                    b.Navigation("Reservas");
                 });
 #pragma warning restore 612, 618
         }

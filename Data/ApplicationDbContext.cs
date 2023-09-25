@@ -12,5 +12,7 @@ namespace ShoraWebsite.Data
         }
         public DbSet<shora.Models.Categoria>? Categoria { get; set; }
         public DbSet<shora.Models.Roupa>? Roupa { get; set; }
+
+        public DbSet<shora.Models.Perfil>? Perfils { get; set; }
     }
 }

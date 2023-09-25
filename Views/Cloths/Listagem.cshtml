@@ -14,8 +14,7 @@
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Categoria)
-            </th>
+                @Html.DisplayNameFor(model => model.Categoria) 
 
             <th></th>
             <th></th>
@@ -49,7 +48,7 @@
                 </td>
                 <td>
                     <a asp-action="Detalhes" asp-route-id="@item.Id">
-                        Detalhes
+                        <img src="/Documentos/Icons/detalhes.png" height="30" width="30"/>
                     </a>
 
                 </td>
