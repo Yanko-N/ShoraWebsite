@@ -76,7 +76,7 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
         {
 
             [Required]
-            [Display(Name ="Username")]
+            [Display(Name = "Username")]
             public string UserName { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -133,14 +133,18 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
                     await _signInManager.SignInAsync(user, isPersistent: true);
 
                     //Conta Criada a partir daqui
-                    await _userManager.AddToRoleAsync(user, "Admin"); //adicionar o utilizador ao role Cliente
+                    await _userManager.AddToRoleAsync(user, "Cliente"); //adicionar o utilizador ao role Cliente
 
-                    ////Tem de se criar aqui o utilizador perfil
-                    //_applicationDbContext.Perfis.Add(new Models.Perfil
-                    //{
-                    //    User = user,
-                    //    UserId = user.Id
-                    //});
+                    //Tem de se criar aqui o utilizador perfil
+                    _applicationDbContext.Perfils.Add(
+                        new shora.Models.Perfil
+                        {
+                            UserId = user.Id,
+                            User = user,
+                            Name = Input.UserName,
+                        });
+
+                    await _applicationDbContext.SaveChangesAsync();
 
                     return LocalRedirect(returnUrl);
 

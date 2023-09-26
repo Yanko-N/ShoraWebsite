@@ -18,7 +18,7 @@ namespace ShoraWebsite.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userM;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context,UserManager<IdentityUser> userM)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<IdentityUser> userM)
         {
             _logger = logger;
             _context = context;
@@ -46,13 +46,13 @@ namespace ShoraWebsite.Controllers
         }
 
 
-        
+
         public async Task<IActionResult> EditarEmail()
         {
-           
-            if(User != null)
+
+            if (User != null)
             {
-                
+
                 var user = await _userM.FindByNameAsync(User.Identity.Name);
                 if (User.Identity.Name != user.UserName)
                 {
@@ -61,7 +61,7 @@ namespace ShoraWebsite.Controllers
 
                 ViewData["OldEmail"] = user.Email;
 
-                ViewData["Id"]=user.Id;
+                ViewData["Id"] = user.Id;
 
                 return View();
             }
@@ -69,16 +69,16 @@ namespace ShoraWebsite.Controllers
             {
                 return Error();
             }
-           
+
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarEmail( EmailChangerModel changerModel)
+        public async Task<IActionResult> EditarEmail(EmailChangerModel changerModel)
         {
-            
-           
+
+
             if (changerModel.NewEmail == string.Empty)
             {
                 return BadRequest();
@@ -104,7 +104,7 @@ namespace ShoraWebsite.Controllers
             }
             else
             {
-               return Error();
+                return Error();
             }
 
         }
