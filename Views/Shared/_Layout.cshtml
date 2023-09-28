@@ -24,8 +24,13 @@
 
                         @if (User.IsInRole("Admin"))
                         {
-                            <a class="nav-link text-dark" asp-controller="Categorias" asp-action="Listagem">Ver Categorias</a>
-                            <a class="nav-link text-dark" asp-controller="Cloths" asp-action="Listagem">Ver Roupa</a>
+                            <li>
+                                <a class="nav-link text-dark" asp-controller="Categorias" asp-action="Listagem">Ver Categorias</a>
+                            </li>
+
+                            <li>
+                                <a class="nav-link text-dark" asp-controller="Cloths" asp-action="Listagem">Ver Roupa</a>
+                            </li>
 
                         }
 

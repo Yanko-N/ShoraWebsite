@@ -307,11 +307,39 @@ namespace ShoraWebsite.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoriaId");
 
                     b.ToTable("Roupa");
+                });
+
+            modelBuilder.Entity("ShoraWebsite.Models.Stock", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoupaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tamanho")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoupaId");
+
+                    b.ToTable("StockMaterial");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -402,6 +430,17 @@ namespace ShoraWebsite.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Categoria");
+                });
+
+            modelBuilder.Entity("ShoraWebsite.Models.Stock", b =>
+                {
+                    b.HasOne("shora.Models.Roupa", "Roupa")
+                        .WithMany()
+                        .HasForeignKey("RoupaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Roupa");
                 });
 
             modelBuilder.Entity("shora.Models.Perfil", b =>

@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ShoraWebsite.Data;
 using shora.Models;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using System.IO;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using ShoraWebsite.Models;
+using System.Diagnostics;
 
 namespace ShoraWebsite.Controllers
 {
@@ -31,11 +26,36 @@ namespace ShoraWebsite.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Listagem()
         {
-            var applicationDbContext = _context.Roupa.Include(r => r.Categoria);
-            return View(await applicationDbContext.ToListAsync());
+            try
+            {
+                var stock = await _context.StockMaterial.Include(r => r.Roupa)
+                    .OrderBy(s => s.Roupa.CategoriaId)
+                    .ToArrayAsync();
+
+                var roupas = await _context.Roupa.Include(r => r.Categoria).ToListAsync();
+
+                foreach (var s in stock)
+                {
+                    foreach (var r in roupas)
+                    {
+                        if (s.RoupaId == r.Id)
+                        {
+                            r.Quantidade += s.Quantidade;
+                        }
+                    }
+                }
+
+
+                return View(roupas);
+
+            }
+            catch (Exception ex)
+            {
+                return Error();
+            }
+
         }
 
-        // GET: Cloths/Details/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Detalhes(int? id)
         {
@@ -48,7 +68,36 @@ namespace ShoraWebsite.Controllers
                 .Include(r => r.Categoria)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            var fotos= roupa.Foto.Split(";");
+            var fotos = roupa.Foto.Split(";");
+
+            var stock = await _context.StockMaterial.Where(s => s.RoupaId == id)
+                .ToListAsync();
+
+            ViewData["Fotos"] = fotos;
+            ViewData["Stock"] = stock;
+            if (roupa == null)
+            {
+                return NotFound();
+            }
+
+            return View(roupa);
+        }
+
+
+        public async Task<IActionResult> Material(int? id)
+        {
+
+            if (id == null || _context.Roupa == null)
+            {
+                return NotFound();
+            }
+
+            var roupa = await _context.Roupa
+                .Include(r => r.Categoria)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            var fotos = roupa.Foto.Split(";");
+
             ViewData["Fotos"] = fotos;
 
             if (roupa == null)
@@ -70,7 +119,7 @@ namespace ShoraWebsite.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Adicionar([Bind("Id,Name,CategoriaId,Foto")] Roupa roupa, List<IFormFile> Foto)
+        public async Task<IActionResult> Adicionar([Bind("Id,Name,CategoriaId,Foto")] Roupa roupa, List<IFormFile> Foto, IFormCollection formData)
         {
             if (ModelState.IsValid)
             {
@@ -104,6 +153,49 @@ namespace ShoraWebsite.Controllers
 
 
 
+                var stockList = new List<Stock>();
+                string[] quantArray = { formData["Quant_XS"], formData["Quant_S"], formData["Quant_M"], formData["Quant_L"], formData["Quant_XL"], formData["Quant_XXL"] };
+
+
+                string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
+
+                for (int i = 0; i < quantArray.Length; i++)
+                {
+                    if (quantArray[i] != null)
+                    {
+                        try
+                        {
+
+                            int x = int.Parse(quantArray[i]);
+
+                            if (x > 0)
+                            {
+                                stockList.Add(new Stock
+                                {
+                                    Quantidade = x,
+                                    Tamanho = sizes[i],
+                                    Roupa = roupa,
+                                    RoupaId = roupa.Id
+                                });
+                            }
+
+
+                            Console.WriteLine("One added");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex + " :Error");
+                            return Error();
+                        }
+                    }
+
+                }
+
+                foreach (var s in stockList)
+                {
+                    _context.Add(s);
+                }
+
                 _context.Add(roupa);
                 await _context.SaveChangesAsync();
 
@@ -112,6 +204,13 @@ namespace ShoraWebsite.Controllers
             ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo", roupa.CategoriaId);
             return View(roupa);
         }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
 
         // GET: Cloths/Edit/5
         [Authorize(Roles = "Admin")]
@@ -147,7 +246,7 @@ namespace ShoraWebsite.Controllers
             {
                 try
                 {
-                    
+
                     _context.Update(roupa);
                     await _context.SaveChangesAsync();
                 }
@@ -207,12 +306,12 @@ namespace ShoraWebsite.Controllers
 
                 if (Directory.Exists(destination))
                 {
-                    Directory.Delete(destination,true);
+                    Directory.Delete(destination, true);
                 }
                 _context.Roupa.Remove(roupa);
             }
 
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Listagem));
         }

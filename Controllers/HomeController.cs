@@ -1,14 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using shora.Models;
+
 using ShoraWebsite.Data;
 using ShoraWebsite.Models;
-using System.Data;
 using System.Diagnostics;
-using System.Security.Claims;
 
 namespace ShoraWebsite.Controllers
 {

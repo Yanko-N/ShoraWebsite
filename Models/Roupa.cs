@@ -1,5 +1,4 @@
-﻿using Humanizer.Localisation.TimeToClockNotation;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace shora.Models
 {
@@ -23,6 +22,8 @@ namespace shora.Models
         [RegularExpression(@"^.+\.([jJ][pP][gG]|[pP][nN][gG])$", ErrorMessage = "Só jpg e png files")]
         public string? Foto { get; set; }
 
+
+        public int Quantidade { get; set; }
 
 
     }

@@ -1,5 +1,7 @@
 ﻿@model shora.Models.Roupa
-
+<head>
+    <script src="./js/site.js"></script>
+</head>
 <h4>Adicionar nova peça de roupa</h4>
 <hr />
 <div class="row">
@@ -8,21 +10,78 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 Nome do Item
-                <input asp-for="Name"  class="form-control" />
+                <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
                 Categoria
-                <select asp-for="CategoriaId" class ="form-control" asp-items="ViewBag.CategoriaId"></select>
+                <select asp-for="CategoriaId" class="form-control" asp-items="ViewBag.CategoriaId"></select>
             </div>
-            
-           
-            <div class="form-group" >
+
+
+            <div class="form-group">
                 <label asp-for="Foto" class="control-label"></label>
-                <input asp-for="Foto" class="form-control" type="file" multiple/>
+                <input asp-for="Foto" class="form-control" type="file" multiple />
                 <span asp-validation-for="Foto" class="text-danger"></span>
             </div>
-           
+
+            <div class="form-group">
+                @{
+                    string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
+
+                }
+                <table>
+                    <tr>
+                        <th>Tamanho</th>
+                        <th></th>
+                        <th>Quantidade</th>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="form-control "  >
+                                <div>
+                                    <input type="checkbox" id="XS" name="sizeXS" value="X" onclick="clothsOnClick('@sizes[0]')">
+                                    <label for="XS"> XS</label><br/>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="S" name="sizeS" value="S" onclick="clothsOnClick('@sizes[1]')">
+                                    <label for="S"> S</label><br/>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="M" name="sizeM" value="M" onclick="clothsOnClick('@sizes[2]')">
+                                    <label for="M"> M</label><br />
+                                </div>
+                                 <div>
+                                    <input type="checkbox" id="L" name="sizeL" value="L" onclick="clothsOnClick('@sizes[3]')">
+                                    <label for="L"> L</label><br />
+                                 </div>
+                                  <div>
+                                    <input type="checkbox" id="XL" name="sizeXL" value="XL" onclick="clothsOnClick('@sizes[4]')">
+                                    <label for="XL"> XL    </label><br />
+                                  </div>
+                                <div >
+                                    <input type="checkbox" id="XXL" name="sizeXXL" value="XXL" onclick="clothsOnClick('@sizes[5]')">
+                                    <label for="XL">XXL</label><br />
+                                </div>
+                                
+                            
+
+                        </td>
+                        <td width="20"></td>
+                        <td>
+                            <input type="number" id="ID_XS" disabled  placeholder="Quant_XS" min="0" name="Quant_XS" />
+                            <input type="number" id="ID_S" disabled  placeholder="Quant_S" min="0" name="Quant_S" />
+                            <input type="number" id="ID_M" disabled placeholder="Quant_M" min="0" name="Quant_M" />
+                            <input type="number" id="ID_L" disabled  placeholder="Quant_L" min="0" name="Quant_L" />
+                            <input type="number" id="ID_XL" disabled  placeholder="Quant_XL" min="0" name="Quant_XL" />
+                            <input type="number" id="ID_XXL" disabled  placeholder="Quant_XXL" min="0" name="Quant_XXL" />
+
+                        </td>
+                    </tr>
+                </table>
+               
+            </div>
             <div class="form-group pad">
                 <input type="submit" value="Adicionar" class="botaoDanger nav-link" />
             </div>
@@ -31,12 +90,14 @@
         <div class="pad">
             <a asp-action="Listagem" class="botao nav-link ">Voltar a Lista de Roupa</a>
         </div>
-       
+
     </div>
 </div>
 
 
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
