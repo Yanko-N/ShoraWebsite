@@ -37,50 +37,25 @@
                         <th>Quantidade</th>
                     </tr>
 
-                    <tr>
-                        <td>
-                            <div class="form-control "  >
-                                <div>
-                                    <input type="checkbox" id="XS" name="sizeXS" value="X" onclick="clothsOnClick('@sizes[0]')">
-                                    <label for="XS"> XS</label><br/>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="S" name="sizeS" value="S" onclick="clothsOnClick('@sizes[1]')">
-                                    <label for="S"> S</label><br/>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="M" name="sizeM" value="M" onclick="clothsOnClick('@sizes[2]')">
-                                    <label for="M"> M</label><br />
-                                </div>
-                                 <div>
-                                    <input type="checkbox" id="L" name="sizeL" value="L" onclick="clothsOnClick('@sizes[3]')">
-                                    <label for="L"> L</label><br />
-                                 </div>
-                                  <div>
-                                    <input type="checkbox" id="XL" name="sizeXL" value="XL" onclick="clothsOnClick('@sizes[4]')">
-                                    <label for="XL"> XL    </label><br />
-                                  </div>
-                                <div >
-                                    <input type="checkbox" id="XXL" name="sizeXXL" value="XXL" onclick="clothsOnClick('@sizes[5]')">
-                                    <label for="XL">XXL</label><br />
-                                </div>
-                                
-                            
 
-                        </td>
-                        <td width="20"></td>
-                        <td>
-                            <input type="number" id="ID_XS" disabled  placeholder="Quant_XS" min="0" name="Quant_XS" />
-                            <input type="number" id="ID_S" disabled  placeholder="Quant_S" min="0" name="Quant_S" />
-                            <input type="number" id="ID_M" disabled placeholder="Quant_M" min="0" name="Quant_M" />
-                            <input type="number" id="ID_L" disabled  placeholder="Quant_L" min="0" name="Quant_L" />
-                            <input type="number" id="ID_XL" disabled  placeholder="Quant_XL" min="0" name="Quant_XL" />
-                            <input type="number" id="ID_XXL" disabled  placeholder="Quant_XXL" min="0" name="Quant_XXL" />
+                    @foreach (var _s in sizes)
+                    {
+                        <tr>
+                            <td>
+                                <div>
+                                    <input type="checkbox" id="@_s" name="size@_s" value="@_s" onclick="clothsOnClick('@_s')">
+                                    <label for="@_s"> @_s</label><br />
+                                </div>
+                            </td>
+                            <td></td>
+                            <td>
+                                <input type="number" id="ID_@_s" disabled placeholder="Quant_@_s" min="0" name="Quant_@_s" />
+                            </td>
+                        </tr>
+                    }
 
-                        </td>
-                    </tr>
                 </table>
-               
+
             </div>
             <div class="form-group pad">
                 <input type="submit" value="Adicionar" class="botaoDanger nav-link" />

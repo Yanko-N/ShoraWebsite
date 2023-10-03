@@ -19,7 +19,7 @@ namespace shora.Models
 
 
 
-        [RegularExpression(@"^.+\.([jJ][pP][gG]|[pP][nN][gG])$", ErrorMessage = "Só jpg e png files")]
+        [RegularExpression(@"^.+\.([jJ][pP][eE][gG]|[jJ][pP][gG]|[pP][nN][gG])$", ErrorMessage = "Só jpg e png files")]
         public string? Foto { get; set; }
 
 

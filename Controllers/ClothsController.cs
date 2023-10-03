@@ -227,7 +227,15 @@ namespace ShoraWebsite.Controllers
                 return NotFound();
             }
             ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo", roupa.CategoriaId);
+
             ViewData["Foto"] = roupa.Foto;
+
+
+            var stock = await _context.StockMaterial.Where(s => s.RoupaId == id)
+                .ToListAsync();
+
+            ViewData["Stock"] = stock;
+
             return View(roupa);
         }
 
@@ -235,7 +243,7 @@ namespace ShoraWebsite.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Editar(int id, [Bind("Id,Name,CategoriaId,Foto")] Roupa roupa)
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Name,CategoriaId,Foto")] Roupa roupa, IFormCollection formData)
         {
             if (id != roupa.Id)
             {
@@ -247,7 +255,57 @@ namespace ShoraWebsite.Controllers
                 try
                 {
 
-                    _context.Update(roupa);
+
+                    var stockList = new List<Stock>();
+                    string[] quantArray = { formData["Quant_XS"], formData["Quant_S"], formData["Quant_M"], formData["Quant_L"], formData["Quant_XL"], formData["Quant_XXL"] };
+
+
+                    string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
+
+                    for (int i = 0; i < quantArray.Length; i++)
+                    {
+                        if (quantArray[i] != null)
+                        {
+                           
+
+                            try
+                            {
+                                int x = 0;
+                                if (String.IsNullOrEmpty(quantArray[i]))
+                                {
+                                    var new_s = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id && s.Tamanho == sizes[i]).FirstOrDefaultAsync();
+                                    x = new_s.Quantidade;
+                                }
+                                else
+                                {
+                                    x = int.Parse(quantArray[i]);
+                                }
+
+
+
+                                
+
+                                if (x >= 0)
+                                {
+                                    var s = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id && s.Tamanho == sizes[i]).FirstOrDefaultAsync();
+
+                                    s.Quantidade = x;
+
+                                    _context.Update(s);
+                                }
+
+
+                                
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex + " :Error");
+                                return Error();
+                            }
+
+                        }
+                    }
+                            _context.Update(roupa);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
