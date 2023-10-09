@@ -20,22 +20,22 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
 
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li>
-                                <a class="nav-link text-dark" asp-controller="Categorias" asp-action="Listagem">Ver Categorias</a>
-                            </li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div class="dropdown">
+                            <button class="dropbtn">Administrador</button>
+                            <div class="dropdown-content">
+                                <a class="nav-link text-dark" asp-controller="Categorias" asp-action="Listagem">Gerir Categorias</a>
+                                <a class="nav-link text-dark" asp-controller="Cloths" asp-action="Listagem">Gerir Roupa</a>
+                                
+                            </div>
+                        </div>
 
-                            <li>
-                                <a class="nav-link text-dark" asp-controller="Cloths" asp-action="Listagem">Ver Roupa</a>
-                            </li>
-
-                        }
-
-                        <!-- COLOCAR AQUI HIPERLINKS-->
-                    </ul>
+                    }
+                    
+                </div>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
                     <partial name="_LoginPartial" />
                 </div>
             </div>

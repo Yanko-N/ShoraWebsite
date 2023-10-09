@@ -1,6 +1,7 @@
 ﻿@model shora.Models.Roupa
 <head>
     <link rel="stylesheet" href="~/css/carouselStyleSheet.css" asp-append-version="true" />
+    <script src="./js/site.js"></script>
 </head>
 <div>
     <h4>Roupa</h4>
@@ -61,7 +62,7 @@
 <div>
     <section class="container">
         <div class="slider-wrapper">
-            <div class="slider">
+            <div class="slider" id="slider">
                 @{
                     int count = 0;
                     foreach (var f in ViewBag.fotos)
@@ -85,7 +86,9 @@
                     }
                 }
             </div>
+          
         </div>
+
     </section>
     
 </div>

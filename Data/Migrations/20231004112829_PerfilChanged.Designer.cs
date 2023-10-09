@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShoraWebsite.Data;
 
@@ -11,9 +12,10 @@ using ShoraWebsite.Data;
 namespace ShoraWebsite.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231004112829_PerfilChanged")]
+    partial class PerfilChanged
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -238,7 +240,7 @@ namespace ShoraWebsite.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categoria", (string)null);
+                    b.ToTable("Categoria");
                 });
 
             modelBuilder.Entity("shora.Models.Perfil", b =>
@@ -264,7 +266,7 @@ namespace ShoraWebsite.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Perfils", (string)null);
+                    b.ToTable("Perfils");
                 });
 
             modelBuilder.Entity("shora.Models.Reserva", b =>
@@ -290,7 +292,7 @@ namespace ShoraWebsite.Data.Migrations
 
                     b.HasIndex("RoupaId");
 
-                    b.ToTable("Reserva", (string)null);
+                    b.ToTable("Reserva");
                 });
 
             modelBuilder.Entity("shora.Models.Roupa", b =>
@@ -318,7 +320,7 @@ namespace ShoraWebsite.Data.Migrations
 
                     b.HasIndex("CategoriaId");
 
-                    b.ToTable("Roupa", (string)null);
+                    b.ToTable("Roupa");
                 });
 
             modelBuilder.Entity("ShoraWebsite.Models.Stock", b =>
@@ -343,7 +345,7 @@ namespace ShoraWebsite.Data.Migrations
 
                     b.HasIndex("RoupaId");
 
-                    b.ToTable("StockMaterial", (string)null);
+                    b.ToTable("StockMaterial");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using ShoraWebsite.Data;
 
 namespace ShoraWebsite.Areas.Identity.Pages.Account.Manage
 {
@@ -16,13 +17,16 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ApplicationDbContext _context;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         /// <summary>
@@ -62,10 +66,13 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account.Manage
 
         private async Task LoadAsync(IdentityUser user)
         {
-            var userName = await _userManager.GetUserNameAsync(user);
+
+
+
+
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
-            Username = userName;
+            Username = user.UserName;
 
             Input = new InputModel
             {
@@ -80,6 +87,10 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account.Manage
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
+
+            var perfilUser = _context.Perfils.FirstOrDefault(p => p.UserId == user.Id);
+            ViewData["FirstName"] = perfilUser.FirstName;
+            ViewData["LastName"] = perfilUser.LastName;
 
             await LoadAsync(user);
             return Page();
@@ -105,13 +116,13 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account.Manage
                 var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
                 if (!setPhoneResult.Succeeded)
                 {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
+                    StatusMessage = "Erro Inesperado";
                     return RedirectToPage();
                 }
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
+            StatusMessage = "O seu perfil foi atualizado";
             return RedirectToPage();
         }
     }

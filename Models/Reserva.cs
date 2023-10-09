@@ -16,5 +16,8 @@ namespace shora.Models
         public Perfil? Perfil { get; set; }
 
         public int Quantidade { get; set; }
+
+        public bool Vendida { get; set; } = false;
+
     }
 }

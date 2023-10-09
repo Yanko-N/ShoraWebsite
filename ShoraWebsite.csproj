@@ -8,6 +8,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\Documentos\FotosRoupa\Outside X Shora\**" />
+    <Compile Remove="wwwroot\Documentos\FotosRoupa\Shoralhada\**" />
+    <Content Remove="wwwroot\Documentos\FotosRoupa\Outside X Shora\**" />
+    <Content Remove="wwwroot\Documentos\FotosRoupa\Shoralhada\**" />
+    <EmbeddedResource Remove="wwwroot\Documentos\FotosRoupa\Outside X Shora\**" />
+    <EmbeddedResource Remove="wwwroot\Documentos\FotosRoupa\Shoralhada\**" />
+    <None Remove="wwwroot\Documentos\FotosRoupa\Outside X Shora\**" />
+    <None Remove="wwwroot\Documentos\FotosRoupa\Shoralhada\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\Home\EditEmail.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.20" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.20" />

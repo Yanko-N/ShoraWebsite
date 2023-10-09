@@ -59,7 +59,16 @@
 
                                    
                                 }
-                                <input type="number" id="ID_@_s" disabled placeholder="@s.Quantidade" min="0" name="Quant_@_s" />
+
+                                @if(s == null)
+                                {
+                                    <input type="number" id="ID_@_s" disabled placeholder="0" min="0" name="Quant_@_s" />
+                                }
+                                else
+                                {
+                                    <input type="number" id="ID_@_s" disabled placeholder="@s.Quantidade" min="0" name="Quant_@_s" />
+                                }
+                                
                             </td>
                         </tr>
                     }

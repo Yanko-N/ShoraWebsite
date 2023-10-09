@@ -76,8 +76,12 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
         {
 
             [Required]
-            [Display(Name = "Username")]
-            public string UserName { get; set; }
+            [Display(Name = "Primeiro Nome")]
+            public string FirstName { get; set; }
+
+            [Required]
+            [Display(Name = "Ultimo Nome")]
+            public string LastName { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -121,8 +125,8 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-
-                await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
+                var username = String.Join("-",Input.FirstName,user.Id);
+                await _userStore.SetUserNameAsync(user, username, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
@@ -141,7 +145,8 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
                         {
                             UserId = user.Id,
                             User = user,
-                            Name = Input.UserName,
+                            FirstName = Input.FirstName,
+                            LastName=Input.LastName
                         });
 
                     await _applicationDbContext.SaveChangesAsync();

@@ -166,7 +166,11 @@ namespace ShoraWebsite.Controllers
                         try
                         {
 
-                            int x = int.Parse(quantArray[i]);
+                            int x = 0;
+                            if (!String.IsNullOrEmpty(quantArray[i]))
+                            {
+                                x = int.Parse(quantArray[i]);
+                            }
 
                             if (x > 0)
                             {
@@ -274,7 +278,12 @@ namespace ShoraWebsite.Controllers
                                 if (String.IsNullOrEmpty(quantArray[i]))
                                 {
                                     var new_s = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id && s.Tamanho == sizes[i]).FirstOrDefaultAsync();
-                                    x = new_s.Quantidade;
+                                    if (new_s != null) // Quer dizer que o user adicionou um valor em nulo ou vazio e esse stock nao existe
+                                    {
+                                        x = new_s.Quantidade;
+                                    }
+                                    
+                                   
                                 }
                                 else
                                 {
@@ -289,9 +298,23 @@ namespace ShoraWebsite.Controllers
                                 {
                                     var s = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id && s.Tamanho == sizes[i]).FirstOrDefaultAsync();
 
-                                    s.Quantidade = x;
+                                    if (s != null)
+                                    {
+                                        s.Quantidade = x;
 
-                                    _context.Update(s);
+                                        _context.Update(s);
+                                    }
+                                    else
+                                    {
+                                        _context.Add(new Stock
+                                        {
+                                            RoupaId = roupa.Id,
+                                            Roupa=roupa,
+                                            Quantidade = x,
+                                            Tamanho = sizes[i]
+                                        }) ;
+                                    }
+                                   
                                 }
 
 
@@ -369,7 +392,14 @@ namespace ShoraWebsite.Controllers
                 _context.Roupa.Remove(roupa);
             }
 
+            //Vamos deletar também o stock que tem a roupa
 
+          var listStock= await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id).ToArrayAsync();
+
+            foreach(Stock s in listStock) {
+
+                _context.StockMaterial.Remove(s);
+            }
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Listagem));
         }
