@@ -17,6 +17,8 @@ namespace ShoraWebsite.Controllers
         private readonly IHostEnvironment _he;
         private readonly UserManager<IdentityUser> _userManager;
 
+        [TempData]
+        public string StatusMessage { get; set; }
 
         public ClothsController(ApplicationDbContext context, IHostEnvironment he, UserManager<IdentityUser> userManager)
         {
@@ -111,17 +113,17 @@ namespace ShoraWebsite.Controllers
 
             ViewData["Fotos"] = fotos;
             ViewData["Stock"] = stock;
-            
+
 
             return View(roupa);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Material(int id, IFormCollection formData)
+        public async Task<IActionResult> Material([Bind("Id,Name,CategoriaId,Foto")] Roupa roupa, IFormCollection formData)
         {
 
-            if (id.ToString() != formData["roupaId"])
+            if (roupa.Id.ToString() != formData["roupaId"])
             {
                 return NotFound();
             }
@@ -165,30 +167,40 @@ namespace ShoraWebsite.Controllers
                         {
                             if (perfilID == null) return Problem("O perfil não existe");
 
-                            var stock = _context.StockMaterial.FirstOrDefault(s => s.Roupa.Id == id && s.Tamanho == sizes[i]);
+                            var stock = _context.StockMaterial.FirstOrDefault(s => s.Roupa.Id == roupa.Id && s.Tamanho == sizes[i]);
                             if (stock.Quantidade - x < 0)
                             {
-                                ModelState.AddModelError("Quant_" + sizes[i], "Não existe Stock suficiente");
+
+                                ///VERIFICAR ISTO DO STATUSMESSAGE
+                                StatusMessage = "Não existe Stock suficiente ";
+
+                                ModelState.AddModelError(nameof(roupa.Quantidade), "Não existe Stock suficiente ");
 
                             }
 
                             if (!ModelState.IsValid)
                             {
-                                Roupa roupa = await _context.Roupa
-                                    .Include(r=>r.Categoria)
-                                    .FirstOrDefaultAsync(r => r.Id == id);
+
 
                                 if (roupa != null)
                                 {
-                                    
+                                    Roupa roupaHelper = await _context.Roupa
+                                    .Include(r => r.Categoria)
+                                    .FirstOrDefaultAsync(r => r.Id == roupa.Id);
 
-                                    var fotos = roupa.Foto.Split(";");
+                                    if (roupaHelper != null)
+                                    {
+                                        roupa=roupaHelper;
+                                    }
 
-                                    var stockPage = await _context.StockMaterial.Where(s => s.RoupaId == id)
-                                        .ToListAsync();
-
+                                    var fotos = roupaHelper.Foto.Split(";");
                                     ViewData["Fotos"] = fotos;
+
+
+                                    var stockPage = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
+                                            .ToListAsync();
                                     ViewData["Stock"] = stockPage;
+
                                     return View(roupa);
 
                                 }
@@ -204,7 +216,7 @@ namespace ShoraWebsite.Controllers
                             reservaList.Add(new Reserva
                             {
                                 Quantidade = x,
-                                RoupaId = id,
+                                RoupaId = roupa.Id,
                                 Vendida = false,
                                 PerfilId = (int)perfilID,
                                 Tamanho = sizes[i]

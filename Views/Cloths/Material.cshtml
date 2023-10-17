@@ -24,9 +24,13 @@
     </dl>
 </div>
 
+<partial name="_StatusMessage" for="StatusMessage" />
 
 <div class="col-md-4 ">
     <form asp-action="Reservar" enctype="multipart/form-data">
+
+        <p> <strong> @Html.ValidationMessageFor(m => m.Quantidade)<br /></strong></p>
+
          <input  type="hidden" name="roupaId" value="@Model.Id" />
             <div class="form-group">
                 @{
