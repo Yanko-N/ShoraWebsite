@@ -1,0 +1,110 @@
+﻿@model shora.Models.Roupa
+<head>
+    <link rel="stylesheet" href="~/css/carouselStyleSheet.css" asp-append-version="true" />
+    <script src="./js/site.js"></script>
+</head>
+<div>
+    <h4>Roupa</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Categoria)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Categoria.Tipo)
+        </dd>
+
+    </dl>
+</div>
+
+
+<div class="col-md-4 ">
+    <form asp-action="Reservar" enctype="multipart/form-data">
+         <input  type="hidden" name="roupaId" value="@Model.Id" />
+            <div class="form-group">
+                @{
+                    string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
+
+                }
+                <table>
+                    <tr>
+                        <th>Tamanho</th>
+                        <th></th>
+                        <th>Quantidade</th>
+                    </tr>
+
+                @foreach (var s in ViewBag.Stock)
+                {
+                    <tr>
+                        <td>
+                            <div>
+                                <input type="checkbox" id="@s.Tamanho" name="size_@s.Tamanho" value="@s.Tamanho" onclick="clothsOnClick('@s.Tamanho')">
+                                <label for="@s.Tamanho"> @s.Tamanho</label><br />
+                            </div>
+                        </td>
+                        <td></td>
+                        <td>
+                            <input type="number" id="ID_@s.Tamanho" disabled placeholder="@s.Quantidade" min="0" name="Quant_@s.Tamanho" max="@s.Quantidade" />
+                        </td>
+                    </tr>
+                }
+
+            </table>
+                        
+             </div>
+             <div>
+                <div class="form-group pad">
+                <input type="submit" asp-action="Material" asp-route-id="@Model.Id"  class="botaoDanger nav-link" value="Reservar" />
+                
+                </div>
+             </div>
+    </form>
+</div>
+
+
+    <div>
+        <section class="container">
+            <div class="slider-wrapper">
+                <div class="slider" id="slider">
+                    @{
+                        int count = 0;
+                        foreach (var f in ViewBag.fotos)
+                        {
+
+                            string s = "/Documentos/FotosRoupa/" + Model.Name + "/" + f;
+                            <img id="slide-@count" src="@s">
+                            count++;
+
+                        }
+                    }
+                </div>
+                <div class="slider-nav">
+                    @{
+                        int id = 0;
+                        foreach (var f in ViewBag.fotos)
+                        {
+
+                            <a href="#slide-@id"></a>
+                            id++;
+                        }
+                    }
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <div>
+
+        <a asp-action="Listagem" class="botao nav-link">Voltar a Lista de Roupa</a>
+    </div>

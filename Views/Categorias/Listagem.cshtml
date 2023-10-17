@@ -41,7 +41,7 @@
                 </td>
 
                 <td>
-                    <a asp-action="Apagar" asp-route-id="@item.Id">
+                    <a asp-action="Delete" asp-route-id="@item.Id" onclick="return confirm('De certeza que queres apagar @item.Tipo ?')">
                         <img src="/Documentos/Icons/delete.png" height="30" width="30" />
                     </a>
 

@@ -107,45 +107,25 @@ namespace ShoraWebsite.Controllers
             return View(categoria);
         }
 
-        // GET: Categorias/Delete/5
+
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Apagar(int? id)
-        {
-            if (id == null || _context.Categoria == null)
-            {
-                return NotFound();
-            }
-
-            var categoria = await _context.Categoria
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (categoria == null)
-            {
-                return NotFound();
-            }
-
-            return View(categoria);
-        }
-
-        // POST: Categorias/Delete/5
-        [Authorize(Roles = "Admin")]
-        [HttpPost, ActionName("Apagar")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Apagado(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (_context.Categoria == null)
             {
-                return Problem("Entity set 'ApplicationDbContext.Categoria'  is null.");
+                return Problem("A base de dados não contém Categoria nenhuma.");
             }
             var categoria = await _context.Categoria.FindAsync(id);
             if (categoria != null)
             {
                 _context.Categoria.Remove(categoria);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Listagem));
-        }
 
+        }
+     
         private bool CategoriaExists(int id)
         {
           return (_context.Categoria?.Any(e => e.Id == id)).GetValueOrDefault();

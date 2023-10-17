@@ -15,3 +15,7 @@ function clothsOnClick(size) {
         textInput.disabled = true;
     }
 }
+
+function PopUpConfirmation(message) {
+    return confirm(message);
+}

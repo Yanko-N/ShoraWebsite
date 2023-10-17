@@ -17,6 +17,8 @@ namespace shora.Models
 
         public int Quantidade { get; set; }
 
+        public string? Tamanho { get; set; } 
+
         public bool Vendida { get; set; } = false;
 
     }
