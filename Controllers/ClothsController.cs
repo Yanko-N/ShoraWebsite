@@ -131,10 +131,9 @@ namespace ShoraWebsite.Controllers
             }
 
 
-            int? perfilID;
 
 
-            if (!TryGetUserPerfil(out perfilID))
+            if (!TryGetUserPerfil(out int? perfilID))
             {
                 return Problem("Não foi encontrado o utilizador");
             }
