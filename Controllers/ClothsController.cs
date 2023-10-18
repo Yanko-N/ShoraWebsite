@@ -92,9 +92,20 @@ namespace ShoraWebsite.Controllers
         public async Task<IActionResult> Material(int? id)
         {
 
+            
             if (id == null || _context.Roupa == null)
             {
                 return NotFound();
+            }
+
+            if (TempData.TryGetValue("statusMessages", out var statusMessages))
+            {
+                ViewBag.statusMessages = statusMessages;
+            }
+
+            if (TempData.TryGetValue("errorsMessages", out var errorMessages))
+            {
+                ViewBag.errorMessages = errorMessages;
             }
 
             var roupa = await _context.Roupa
@@ -216,7 +227,7 @@ namespace ShoraWebsite.Controllers
                         }
                         else
                         {
-                            errorMessages.Add($"Houve erro com o Input de {sizes[i]} - {roupa.Name}, logo não foi possivel reservar este tamanho");
+                            errorMessages.Add($"Houve erro com o Input de {sizes[i]} de {roupa.Name}, logo não foi possivel reservar este tamanho");
                         }
                     }
                     catch (Exception ex)
@@ -306,94 +317,128 @@ namespace ShoraWebsite.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Adicionar([Bind("Id,Name,CategoriaId,Foto")] Roupa roupa, List<IFormFile> Foto, IFormCollection formData)
+        public async Task<IActionResult> Adicionar([Bind("Id,Name,CategoriaId,Preco,Foto")] Roupa roupa, List<IFormFile> Fotos, IFormCollection formData)
         {
+            //Lista de erros e de status
+            List<string> errorMessages = new List<string>();
+            List<string>  statusMessages = new List<string>();
+
+            //Inicializar primeiro a variavel
+            ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo", roupa.CategoriaId);
+
+
             if (ModelState.IsValid)
             {
-                if (Foto != null)
+
+               
+                if (Fotos != null)
                 {
                     string destination = Path.Combine(_he.ContentRootPath, "wwwroot/Documentos/FotosRoupa/", roupa.Name);
 
+                    //Verifico se existe já esse caminho
                     if (!Directory.Exists(destination))
                     {
+                        //crio
                         Directory.CreateDirectory(destination);
                     }
 
-
+                    //Lista de string dos ficheiros para guardar na DB
                     List<string> files = new List<string>();
-                    foreach (var f in Foto)
-                    {
 
+                    //Passo por todas as Fotos Recebidas
+                    foreach (var f in Fotos)
+                    {
+                        //Destino Final
                         var finalDestination = Path.Combine(destination, f.FileName);
+
+                        //Crio uma Stream nesse caminho,coloco-o lá e fecho
                         FileStream fs = new FileStream(finalDestination, FileMode.Create);
                         f.CopyTo(fs);
                         fs.Close();
+
+                        //Adiciona a lista de strings de ficheiros
                         files.Add(f.FileName);
                     }
 
+                    //String que contém todos os ficheiros
                     string s = String.Join(";", files);
 
+                    //Foto quarda todos os nomes dos ficheiros
                     roupa.Foto = s;
                 }
 
 
 
 
-
+                //Lista de Stock
                 var stockList = new List<Stock>();
+
+                //Array com os parametros recebidos do Form
+                //Guarda a quantidade recebida de cada tamanho
                 string[] quantArray = { formData["Quant_XS"], formData["Quant_S"], formData["Quant_M"], formData["Quant_L"], formData["Quant_XL"], formData["Quant_XXL"] };
 
-
+                //Tamanhos Disponiveis
                 string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
 
+                //Percorro por todos as quantidades recebidas
                 for (int i = 0; i < quantArray.Length; i++)
                 {
-                    if (quantArray[i] != null)
+                    //Se realmente veio algum parametro de input
+                    if (!String.IsNullOrEmpty(quantArray[i]))
                     {
                         try
                         {
-
-                            int x = 0;
-                            if (!String.IsNullOrEmpty(quantArray[i]))
-                            {
-                                x = int.Parse(quantArray[i]);
-                            }
-
-                            if (x > 0)
+                            if (int.TryParse(quantArray[i],out int quantidade) && quantidade > 0)
                             {
                                 stockList.Add(new Stock
                                 {
-                                    Quantidade = x,
+                                    Quantidade = quantidade,
                                     Tamanho = sizes[i],
                                     Roupa = roupa,
                                     RoupaId = roupa.Id
                                 });
                             }
-
-
-                            Console.WriteLine("One added");
+                           
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
-                            return Problem("Encontramos um problema :" + ex);
+                            errorMessages.Add($"Quantidade inserida no tamanho {sizes[i]} é um valor inválido.");
 
                         }
                     }
+                    else
+                    {
+                        errorMessages.Add($"Quantidade inserida no tamanho {sizes[i]} veio vazia.");
+                    }
 
                 }
-
-                foreach (var s in stockList)
-                {
-                    _context.Add(s);
-                }
-
+                TempData["errorsMessages"] = errorMessages;
+                TempData["statusMessages"] = statusMessages;
+                //Guardo na DB o Stock Total
+                await _context.StockMaterial.AddRangeAsync(stockList);
+                //Adiciono a DB a roupa
                 _context.Add(roupa);
+
+
+
+                //DB guarda as mudanças
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Listagem));
+                return RedirectToAction(nameof(Material), new { id = roupa.Id });
             }
-            ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo", roupa.CategoriaId);
-            return View(roupa);
+            else
+            {
+                //recebo as mensagens de Erro
+                var errors = ModelState.Values
+                   .SelectMany(x => x.Errors)
+                   .Select(x => x.ErrorMessage);
+
+                errorMessages.AddRange(errors);
+
+                ViewBag.errorMessages = errorMessages;
+                return View(roupa);
+            }
+            
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

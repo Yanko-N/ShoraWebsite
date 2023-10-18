@@ -11,7 +11,7 @@ namespace shora.Models
         public string Name { get; set; } = " ";
 
 
-        [Required(ErrorMessage = "É Obrigatorio ter uma categoria associadada")]
+        [Required(ErrorMessage = "É obrigatorio ter uma categoria associadada")]
         public int CategoriaId { get; set; }
 
 
@@ -24,6 +24,9 @@ namespace shora.Models
 
 
         public int Quantidade { get; set; }
+
+        [Required(ErrorMessage ="É obrigatorio existir um preço")]
+        public float Preco { get; set; }
 
 
     }

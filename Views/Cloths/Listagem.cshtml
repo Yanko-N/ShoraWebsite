@@ -19,6 +19,7 @@
 
             </th>
             <th>Stock Total</th>
+            <th>@Html.DisplayNameFor(model => model.Preco)</th>
             <th></th>
             <th></th>
             <th></th>
@@ -43,6 +44,11 @@
  
                       @Html.DisplayFor(modelItem=> item.Quantidade)
                     
+                    </td>
+                    <td>
+
+                        @Html.DisplayFor(modelItem=> item.Preco)
+
                     </td>
 
                     <td>
