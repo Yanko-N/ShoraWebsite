@@ -8,6 +8,7 @@ using System.Data;
 using ShoraWebsite.Models;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
 
 namespace ShoraWebsite.Controllers
 {
@@ -16,6 +17,7 @@ namespace ShoraWebsite.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IHostEnvironment _he;
         private readonly UserManager<IdentityUser> _userManager;
+
 
 
         public ClothsController(ApplicationDbContext context, IHostEnvironment he, UserManager<IdentityUser> userManager)
@@ -73,7 +75,7 @@ namespace ShoraWebsite.Controllers
 
             var fotos = roupa.Foto.Split(";");
 
-            var stock = await _context.StockMaterial.Where(s => s.RoupaId == id)
+            var stock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
                 .ToListAsync();
 
             ViewData["Fotos"] = fotos;
@@ -106,129 +108,192 @@ namespace ShoraWebsite.Controllers
 
             var fotos = roupa.Foto.Split(";");
 
-            var stock = await _context.StockMaterial.Where(s => s.RoupaId == id)
+            var stock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
                 .ToListAsync();
 
             ViewData["Fotos"] = fotos;
             ViewData["Stock"] = stock;
-            
+            ViewBag.errorMessage = null;
+            ViewBag.statusMessage = null;
 
             return View(roupa);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Material(int id, IFormCollection formData)
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Material([Bind("Id,Name,CategoriaId,Foto")] Roupa roupa, IFormCollection formData)
         {
-
-            if (id.ToString() != formData["roupaId"])
+            //verifico se o id passado é igual ao do form e vou buscar a roupa e verifico se a roupa existe na DB
+            if (roupa.Id.ToString() != formData["roupaId"] || (roupa = await _context.Roupa.Include(r => r.Categoria).FirstOrDefaultAsync(r => r.Id == roupa.Id)) == null)
             {
-                return NotFound();
+                return Problem("Não foi encrontrada a roupa");
             }
 
 
             int? perfilID;
 
-            try
+
+            if (!TryGetUserPerfil(out perfilID))
             {
-                var userId = _userManager.GetUserId(User);
-                var perfil = await _context.Perfils.FirstOrDefaultAsync(p => p.UserId == userId);
-                perfilID = perfil.Id;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex + ": Error");
-                return Error();
+                return Problem("Não foi encontrado o utilizador");
             }
 
 
-            var reservaList = new List<Reserva>();
+            if (!TryGetRoupaFromDatabase(roupa.Id, out roupa))
+            {
+                return Problem("Não foi encrontrada a roupa");
+
+            }
+
+
+
+            //Recebo os parametros do Form
             string[] quantArray = { formData["Quant_XS"], formData["Quant_S"], formData["Quant_M"], formData["Quant_L"], formData["Quant_XL"], formData["Quant_XXL"] };
 
-
+            //Tamanhos existentes
             string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
+
+            //Lista de stock para depois atualizar na DB
             var stockList = new List<Stock>();
+            //Crio uma lista de Reservas para depois adicionar a DB
+            List<Reserva> reservaList = new List<Reserva>();
+
+            //Listas de Mensagens de Erro e de Status
+            List<string> errorMessages = new List<string>();
+            List<string> statusMessages = new List<string>();
+
+
+            //Passo por todos os tamanhos recebidos e por seu Tamanho
             for (int i = 0; i < quantArray.Length; i++)
             {
+                //Se for diferente de nulo vou processar
                 if (quantArray[i] != null)
                 {
+
+                    //Tentar fazer Parsing
                     try
                     {
-
-                        int x = 0;
-                        if (!String.IsNullOrEmpty(quantArray[i]))
+                        if (int.TryParse(quantArray[i], out int quantidade) && quantidade > 0)
                         {
-                            x = int.Parse(quantArray[i]);
-                        }
-
-                        if (x > 0)
-                        {
-                            if (perfilID == null) return Problem("O perfil não existe");
-
-                            var stock = _context.StockMaterial.FirstOrDefault(s => s.Roupa.Id == id && s.Tamanho == sizes[i]);
-                            if (stock.Quantidade - x < 0)
+                            Stock stock;
+                            if (TryGetStock(roupa.Id, sizes[i], out stock))
                             {
-                                ModelState.AddModelError("Quant_" + sizes[i], "Não existe Stock suficiente");
-
-                            }
-
-                            if (!ModelState.IsValid)
-                            {
-                                Roupa roupa = await _context.Roupa
-                                    .Include(r=>r.Categoria)
-                                    .FirstOrDefaultAsync(r => r.Id == id);
-
-                                if (roupa != null)
+                                //Se por ventura o utilizador tentar comprar mais material que existe na DB
+                                if (stock.Quantidade - quantidade >= 0)
                                 {
-                                    
 
-                                    var fotos = roupa.Foto.Split(";");
+                                    //Temos Stock para processar a reserva
 
-                                    var stockPage = await _context.StockMaterial.Where(s => s.RoupaId == id)
-                                        .ToListAsync();
+                                    stock.Quantidade -= quantidade;
+                                    //Verifico se acabou com o stock
+                                    if (stock.Quantidade == 0)
+                                    {
+                                        _context.StockMaterial.Remove(stock);
+                                    }
+                                    else
+                                    {
+                                        stockList.Add(stock); //adiciono a lista de stock para ser alterado
+                                    }
 
-                                    ViewData["Fotos"] = fotos;
-                                    ViewData["Stock"] = stockPage;
-                                    return View(roupa);
+                                    //Adiciono a Reserva a DB
+                                    reservaList.Add(new Reserva
+                                    {
+                                        Quantidade = quantidade,
+                                        RoupaId = roupa.Id,
+                                        Vendida = false,
+                                        PerfilId = (int)perfilID,
+                                        Tamanho = sizes[i]
 
+                                    });
+                                    //Adiciono a Status Message
+                                    statusMessages.Add($"Foram reservados {quantidade} {roupa.Name} {sizes[i]}");
                                 }
                                 else
                                 {
-                                    return Problem("A roupa não existe");
+                                    errorMessages.Add($"Houve um imprevisto, não temos stock suficiente para a reserva submetida de {roupa.Name}-{sizes[i]}");
                                 }
                             }
-
-                            stock.Quantidade -= x;
-                            stockList.Add(stock);
-
-                            reservaList.Add(new Reserva
-                            {
-                                Quantidade = x,
-                                RoupaId = id,
-                                Vendida = false,
-                                PerfilId = (int)perfilID,
-                                Tamanho = sizes[i]
-
-                            });
-
-
                         }
-
-
+                        else
+                        {
+                            errorMessages.Add($"Houve erro com o Input de {sizes[i]} - {roupa.Name}, logo não foi possivel reservar este tamanho");
+                        }
                     }
                     catch (Exception ex)
                     {
+
                         return Problem("Encontramos um problema :" + ex);
                     }
                 }
             }
 
+            var stockPage = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id).ToListAsync();
+            var fotos = roupa.Foto.Split(";");
+
+            ViewData["Stock"] = stockPage;
+            ViewData["Fotos"] = fotos;
+
+
+
+            if (errorMessages.Count != 0)
+            {
+                ViewBag.errorMessages = errorMessages;
+
+            }
+            else
+            {
+                ViewBag.errorMessages = null;
+            }
+
+            if (statusMessages.Count != 0)
+            {
+                ViewBag.statusMessages = statusMessages;
+
+            }
+            else
+            {
+                ViewBag.statusMessages = null;
+            }
 
             await _context.AddRangeAsync(reservaList);
             _context.UpdateRange(stockList);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Listagem));
+            return View(roupa);
+        }
+
+
+        private bool TryGetUserPerfil(out int? perfilID)
+        {
+            perfilID = null;
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                var perfil = _context.Perfils.FirstOrDefault(p => p.UserId == userId);
+                if (perfil != null)
+                {
+                    perfilID = perfil.Id;
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool TryGetRoupaFromDatabase(int roupaId, out Roupa roupa)
+        {
+            roupa = _context.Roupa.Include(r => r.Categoria).FirstOrDefault(r => r.Id == roupaId);
+            return roupa != null;
+        }
+
+        private bool TryGetStock(int roupaId, string size, out Stock stock)
+        {
+            stock = _context.StockMaterial.FirstOrDefault(s => s.Roupa.Id == roupaId && s.Tamanho == size);
+            return stock != null;
         }
 
         // GET: Cloths/Create
@@ -358,7 +423,7 @@ namespace ShoraWebsite.Controllers
             ViewData["Foto"] = roupa.Foto;
 
 
-            var stock = await _context.StockMaterial.Where(s => s.RoupaId == id)
+            var stock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
                 .ToListAsync();
 
             ViewData["Stock"] = stock;
@@ -372,7 +437,7 @@ namespace ShoraWebsite.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Editar(int id, [Bind("Id,Name,CategoriaId,Foto")] Roupa roupa, IFormCollection formData)
         {
-            if (id != roupa.Id)
+            if (roupa.Id != roupa.Id)
             {
                 return NotFound();
             }

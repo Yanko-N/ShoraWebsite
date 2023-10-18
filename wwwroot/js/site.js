@@ -19,3 +19,8 @@ function clothsOnClick(size) {
 function PopUpConfirmation(message) {
     return confirm(message);
 }
+function closePopUpMessage(id) {
+    var div = document.getElementById(id);
+
+    div.remove();
+}

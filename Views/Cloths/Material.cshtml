@@ -1,8 +1,33 @@
 ﻿@model shora.Models.Roupa
 <head>
-    <link rel="stylesheet" href="~/css/carouselStyleSheet.css" asp-append-version="true" />
+    <script src="./lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/site.js"></script>
 </head>
+
+@if (ViewBag.statusMessages != null)
+{
+    <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+        @foreach (var s in ViewBag.statusMessages)
+        {
+            <p>@s</p>
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+    </div>
+}
+
+
+@if (ViewBag.errorMessages != null)
+{
+    <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+        @foreach (var s in ViewBag.errorMessages)
+        {
+            <p>@s</p>
+
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+    </div>
+}
+
 <div>
     <h4>Roupa</h4>
     <hr />
@@ -25,20 +50,21 @@
 </div>
 
 
+
 <div class="col-md-4 ">
     <form asp-action="Reservar" enctype="multipart/form-data">
-         <input  type="hidden" name="roupaId" value="@Model.Id" />
-            <div class="form-group">
-                @{
-                    string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
+        <input type="hidden" name="roupaId" value="@Model.Id" />
+        <div class="form-group">
+            @{
+                string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
 
-                }
-                <table>
-                    <tr>
-                        <th>Tamanho</th>
-                        <th></th>
-                        <th>Quantidade</th>
-                    </tr>
+            }
+            <table>
+                <tr>
+                    <th>Tamanho</th>
+                    <th></th>
+                    <th>Quantidade</th>
+                </tr>
 
                 @foreach (var s in ViewBag.Stock)
                 {
@@ -46,7 +72,8 @@
                         <td>
                             <div>
                                 <input type="checkbox" id="@s.Tamanho" name="size_@s.Tamanho" value="@s.Tamanho" onclick="clothsOnClick('@s.Tamanho')">
-                                <label for="@s.Tamanho"> @s.Tamanho</label><br />
+                                <label for="@s.Tamanho"> @s.Tamanho</label>
+
                             </div>
                         </td>
                         <td></td>
@@ -57,54 +84,43 @@
                 }
 
             </table>
-                        
-             </div>
-             <div>
-                <div class="form-group pad">
-                <input type="submit" asp-action="Material" asp-route-id="@Model.Id"  class="botaoDanger nav-link" value="Reservar" />
-                
-                </div>
-             </div>
+
+        </div>
+        <div>
+            <div class="form-group pad">
+                <input type="submit" asp-action="Material" asp-route-id="@Model.Id" class="botaoDanger nav-link" value="Reservar" />
+
+            </div>
+        </div>
     </form>
 </div>
 
+<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel" >
+    <div class="carousel-inner">
+        @for (var i = 0; i < ViewBag.fotos.Length; i++)
+        {
 
-    <div>
-        <section class="container">
-            <div class="slider-wrapper">
-                <div class="slider" id="slider">
-                    @{
-                        int count = 0;
-                        foreach (var f in ViewBag.fotos)
-                        {
+            string s = "/Documentos/FotosRoupa/" + Model.Name + "/" + ViewBag.fotos[i];
 
-                            string s = "/Documentos/FotosRoupa/" + Model.Name + "/" + f;
-                            <img id="slide-@count" src="@s">
-                            count++;
-
-                        }
-                    }
-                </div>
-                <div class="slider-nav">
-                    @{
-                        int id = 0;
-                        foreach (var f in ViewBag.fotos)
-                        {
-
-                            <a href="#slide-@id"></a>
-                            id++;
-                        }
-                    }
-                </div>
-
+            <div class="carousel-item @(i == 0 ? "active" : "")">
+                <img src="@s" class="d-block w-100" alt="...">
             </div>
 
-        </section>
-
+        }
     </div>
 
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
 
-    <div>
 
-        <a asp-action="Listagem" class="botao nav-link">Voltar a Lista de Roupa</a>
-    </div>
+<div>
+
+    <a asp-action="Listagem" class="botao nav-link">Voltar a Lista de Roupa</a>
+</div>
