@@ -59,6 +59,8 @@
         </tr>
     </table>
 
+   @if (ViewBag.fotos != null)
+{
     <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
             @for (var i = 0; i < ViewBag.fotos.Length; i++)
@@ -82,6 +84,8 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
+
+}
 
 
 <div>

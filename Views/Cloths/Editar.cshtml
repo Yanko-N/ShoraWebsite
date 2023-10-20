@@ -1,5 +1,28 @@
 ﻿@model shora.Models.Roupa
 
+@if (ViewBag.statusMessages != null)
+{
+    <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+        @foreach (var s in ViewBag.statusMessages)
+        {
+            <p>@s</p>
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+    </div>
+}
+
+
+@if (ViewBag.errorMessages != null)
+{
+    <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+        @foreach (var s in ViewBag.errorMessages)
+        {
+            <p>@s</p>
+
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+    </div>
+}
 <h4>Roupa</h4>
 <hr />
 <div class="row">
@@ -7,6 +30,7 @@
         <form asp-action="Editar">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" name="Price" value="@Model.Preco" />
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
@@ -20,8 +44,7 @@
             <input type="hidden" asp-for="Foto" value="@ViewBag.Foto">
             <div class="form-group">
                 <label asp-for="Preco" class="control-label"></label>
-                <input asp-for="Preco" class="form-control" />
-                <span asp-validation-for="Preco" class="text-danger"></span>
+                <input  class=" form-control"  value="@Model.Preco" />
             </div>
 
             <div class="form-group">
@@ -29,9 +52,6 @@
                     string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
 
                     List<Stock> stock = ViewBag.Stock;
-
-                    
-                    
 
                 }
                 <table>
@@ -43,7 +63,7 @@
 
                     @foreach (var _s in sizes)
                     {
-                        
+
                         <tr>
                             <td>
                                 <div>
@@ -54,20 +74,18 @@
                             <td></td>
                             <td>
                                 @{
-                                    Stock s = stock.FirstOrDefault(s => s.Tamanho == _s);
-
                                    
-                                }
+                                    Stock? s = stock.Find(s=>s.Tamanho == _s);
 
-                                @if(s == null)
-                                {
-                                    <input type="number" id="ID_@_s" disabled placeholder="0" min="0" name="Quant_@_s" />
+                                    if (s == null)
+                                    {
+                                        <input type="number" id="ID_@_s" disabled placeholder="0" min="0" name="Quant_@_s" />
+                                    }
+                                    else
+                                    {
+                                        <input type="number" id="ID_@_s" disabled placeholder="@s.Quantidade" min="0" name="Quant_@_s" />
+                                    }
                                 }
-                                else
-                                {
-                                    <input type="number" id="ID_@_s" disabled placeholder="@s.Quantidade" min="0" name="Quant_@_s" />
-                                }
-                                
                             </td>
                         </tr>
                     }

@@ -9,6 +9,7 @@ using ShoraWebsite.Models;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
+using Humanizer;
 
 namespace ShoraWebsite.Controllers
 {
@@ -51,16 +52,20 @@ namespace ShoraWebsite.Controllers
                 }
 
 
+                TempData["statusMessages"] = null;
+                TempData["errosMessages"] = null;
+
                 return View(roupas);
 
             }
             catch (Exception ex)
             {
-                return Error();
+                return Problem($"Houve um imprevisto\nErro:{ex}");
             }
 
         }
 
+        //Get
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Detalhes(int? id)
         {
@@ -73,26 +78,34 @@ namespace ShoraWebsite.Controllers
                 .Include(r => r.Categoria)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            var fotos = roupa.Foto.Split(";");
 
-            var stock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
-                .ToListAsync();
-
-            ViewData["Fotos"] = fotos;
-            ViewData["Stock"] = stock;
             if (roupa == null)
             {
                 return NotFound();
             }
 
+
+            if (String.IsNullOrWhiteSpace(roupa.Foto))
+            {
+                ViewData["Fotos"] = null;
+            }
+            else
+            {
+                ViewData["Fotos"] = roupa.Foto.Split(";");
+            }
+
+
+            ViewData["Stock"] = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
+                .ToListAsync();
+
             return View(roupa);
         }
 
-
+        //get
         public async Task<IActionResult> Material(int? id)
         {
 
-            
+
             if (id == null || _context.Roupa == null)
             {
                 return NotFound();
@@ -117,15 +130,21 @@ namespace ShoraWebsite.Controllers
                 return NotFound();
             }
 
-            var fotos = roupa.Foto.Split(";");
 
-            var stock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
+            if (!String.IsNullOrWhiteSpace(roupa.Foto))
+            {
+                ViewData["Fotos"] = roupa.Foto.Split(";");
+
+            }
+            else
+            {
+                ViewData["Fotos"] = null;
+            }
+
+
+            ViewData["Stock"] = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
                 .ToListAsync();
 
-            ViewData["Fotos"] = fotos;
-            ViewData["Stock"] = stock;
-            ViewBag.errorMessage = null;
-            ViewBag.statusMessage = null;
 
             return View(roupa);
         }
@@ -133,7 +152,7 @@ namespace ShoraWebsite.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Material([Bind("Id,Name,CategoriaId,Foto")] Roupa roupa, IFormCollection formData)
+        public async Task<IActionResult> Material([Bind("Id,Name,CategoriaId,Preco,Foto")] Roupa roupa, IFormCollection formData)
         {
             //verifico se o id passado é igual ao do form e vou buscar a roupa e verifico se a roupa existe na DB
             if (roupa.Id.ToString() != formData["roupaId"] || (roupa = await _context.Roupa.Include(r => r.Categoria).FirstOrDefaultAsync(r => r.Id == roupa.Id)) == null)
@@ -173,12 +192,22 @@ namespace ShoraWebsite.Controllers
             List<string> errorMessages = new List<string>();
             List<string> statusMessages = new List<string>();
 
+            //Array com as strings das fotos
+            
+            if (String.IsNullOrWhiteSpace(roupa.Foto))
+            {
+                ViewData["Fotos"] = null;
+            }
+            else
+            {
+                ViewData["Fotos"] =  roupa.Foto.Split(";");
+            }
 
             //Passo por todos os tamanhos recebidos e por seu Tamanho
             for (int i = 0; i < quantArray.Length; i++)
             {
                 //Se for diferente de nulo vou processar
-                if (quantArray[i] != null)
+                if (!String.IsNullOrWhiteSpace(quantArray[i]))
                 {
 
                     //Tentar fazer Parsing
@@ -239,10 +268,9 @@ namespace ShoraWebsite.Controllers
             }
 
             var stockPage = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id).ToListAsync();
-            var fotos = roupa.Foto.Split(";");
 
             ViewData["Stock"] = stockPage;
-            ViewData["Fotos"] = fotos;
+           
 
 
 
@@ -273,43 +301,21 @@ namespace ShoraWebsite.Controllers
             return View(roupa);
         }
 
-
-        private bool TryGetUserPerfil(out int? perfilID)
-        {
-            perfilID = null;
-            try
-            {
-                var userId = _userManager.GetUserId(User);
-                var perfil = _context.Perfils.FirstOrDefault(p => p.UserId == userId);
-                if (perfil != null)
-                {
-                    perfilID = perfil.Id;
-                    return true;
-                }
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private bool TryGetRoupaFromDatabase(int roupaId, out Roupa roupa)
-        {
-            roupa = _context.Roupa.Include(r => r.Categoria).FirstOrDefault(r => r.Id == roupaId);
-            return roupa != null;
-        }
-
-        private bool TryGetStock(int roupaId, string size, out Stock stock)
-        {
-            stock = _context.StockMaterial.FirstOrDefault(s => s.Roupa.Id == roupaId && s.Tamanho == size);
-            return stock != null;
-        }
-
         // GET: Cloths/Create
         [Authorize(Roles = "Admin")]
         public IActionResult Adicionar()
         {
+            if (TempData.TryGetValue("statusMessages", out var statusMessages))
+            {
+                ViewBag.statusMessages = statusMessages;
+            }
+
+            if (TempData.TryGetValue("errorsMessages", out var errorMessages))
+            {
+                ViewBag.errorMessages = errorMessages;
+            }
+
+
             ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo");
             return View();
         }
@@ -317,21 +323,41 @@ namespace ShoraWebsite.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Adicionar([Bind("Id,Name,CategoriaId,Preco,Foto")] Roupa roupa, List<IFormFile> Fotos, IFormCollection formData)
+        public async Task<IActionResult> Adicionar([Bind("Id,Name,CategoriaId,Preco,Foto")] Roupa roupa, List<IFormFile> Foto, IFormCollection formData)
         {
             //Lista de erros e de status
             List<string> errorMessages = new List<string>();
-            List<string>  statusMessages = new List<string>();
+            List<string> statusMessages = new List<string>();
 
             //Inicializar primeiro a variavel
             ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo", roupa.CategoriaId);
 
+            try
+            {
+                if (float.TryParse(formData["Preco"], out float preco))
+                {
+                    roupa.Preco = preco;
+                }
+                else
+                {
+                    errorMessages.Add($"O valor inserido no Preco não é no formato correto - 12,4 ");
+                    ViewBag.errorMessages = errorMessages;
+                    return View(roupa);
+                }
+
+            }
+            catch (Exception)
+            {
+                errorMessages.Add($"O valor inserido no Preco é Inválido");
+                ViewBag.errorMessages = errorMessages;
+                return View(roupa);
+            }
 
             if (ModelState.IsValid)
             {
 
-               
-                if (Fotos != null)
+
+                if (Foto != null)
                 {
                     string destination = Path.Combine(_he.ContentRootPath, "wwwroot/Documentos/FotosRoupa/", roupa.Name);
 
@@ -346,7 +372,7 @@ namespace ShoraWebsite.Controllers
                     List<string> files = new List<string>();
 
                     //Passo por todas as Fotos Recebidas
-                    foreach (var f in Fotos)
+                    foreach (var f in Foto)
                     {
                         //Destino Final
                         var finalDestination = Path.Combine(destination, f.FileName);
@@ -384,11 +410,11 @@ namespace ShoraWebsite.Controllers
                 for (int i = 0; i < quantArray.Length; i++)
                 {
                     //Se realmente veio algum parametro de input
-                    if (!String.IsNullOrEmpty(quantArray[i]))
+                    if (!String.IsNullOrWhiteSpace(quantArray[i]))
                     {
                         try
                         {
-                            if (int.TryParse(quantArray[i],out int quantidade) && quantidade > 0)
+                            if (int.TryParse(quantArray[i], out int quantidade) && quantidade > 0)
                             {
                                 stockList.Add(new Stock
                                 {
@@ -398,11 +424,11 @@ namespace ShoraWebsite.Controllers
                                     RoupaId = roupa.Id
                                 });
                             }
-                           
+
                         }
                         catch (Exception)
                         {
-                            errorMessages.Add($"Quantidade inserida no tamanho {sizes[i]} é um valor inválido.");
+                            errorMessages.Add($"Quantidade inserida no tamanho {sizes[i]} tem de ser do formato \" 1,23 \" .");
 
                         }
                     }
@@ -412,6 +438,8 @@ namespace ShoraWebsite.Controllers
                     }
 
                 }
+
+               
                 TempData["errorsMessages"] = errorMessages;
                 TempData["statusMessages"] = statusMessages;
                 //Guardo na DB o Stock Total
@@ -424,7 +452,17 @@ namespace ShoraWebsite.Controllers
                 //DB guarda as mudanças
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Material), new { id = roupa.Id });
+                //Houve erros na criação da roupa
+                if (errorMessages.Count > 0)
+                {
+                    return RedirectToAction(nameof(Editar), new { id = roupa.Id });
+                }
+                else
+                {
+                    return RedirectToAction(nameof(Material), new { id = roupa.Id });
+                }
+
+
             }
             else
             {
@@ -438,17 +476,11 @@ namespace ShoraWebsite.Controllers
                 ViewBag.errorMessages = errorMessages;
                 return View(roupa);
             }
-            
+
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-
-        // GET: Cloths/Edit/5
+    
+        //Get
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Editar(int? id)
         {
@@ -457,7 +489,18 @@ namespace ShoraWebsite.Controllers
                 return NotFound();
             }
 
+            if (TempData.TryGetValue("statusMessages", out var statusMessages))
+            {
+                ViewBag.statusMessages = statusMessages;
+            }
+
+            if (TempData.TryGetValue("errorsMessages", out var errorMessages))
+            {
+                ViewBag.errorMessages = errorMessages;
+            }
+
             var roupa = await _context.Roupa.FindAsync(id);
+
             if (roupa == null)
             {
                 return NotFound();
@@ -471,7 +514,7 @@ namespace ShoraWebsite.Controllers
                 .ToListAsync();
 
             ViewData["Stock"] = stock;
-
+            TempData["Price"] = roupa.Preco.ToString();
             return View(roupa);
         }
 
@@ -479,104 +522,148 @@ namespace ShoraWebsite.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Editar(int id, [Bind("Id,Name,CategoriaId,Foto")] Roupa roupa, IFormCollection formData)
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Name,CategoriaId,Preco,Foto")] Roupa roupa, IFormCollection formData)
         {
-            if (roupa.Id != roupa.Id)
+            if (roupa.Id != id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            //Lista de erros e de status
+            List<string> errorMessages = new List<string>();
+            List<string> statusMessages = new List<string>();
+
+            ViewBag.Stock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id).ToListAsync();
+            ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo", roupa.CategoriaId);
+
+            try
             {
-                try
+
+                if (TempData.TryGetValue("Price", out var oldPrice))
                 {
-
-
-                    var stockList = new List<Stock>();
-                    string[] quantArray = { formData["Quant_XS"], formData["Quant_S"], formData["Quant_M"], formData["Quant_L"], formData["Quant_XL"], formData["Quant_XXL"] };
-
-
-                    string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
-
-                    for (int i = 0; i < quantArray.Length; i++)
+                    if (float.TryParse((string?)oldPrice, out float oldPriceConverted))
                     {
-                        if (quantArray[i] != null)
-                        {
-
-
-                            try
-                            {
-                                int x = 0;
-                                if (String.IsNullOrEmpty(quantArray[i]))
-                                {
-                                    var new_s = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id && s.Tamanho == sizes[i]).FirstOrDefaultAsync();
-                                    if (new_s != null) // Quer dizer que o user adicionou um valor em nulo ou vazio e esse stock nao existe
-                                    {
-                                        x = new_s.Quantidade;
-                                    }
-
-
-                                }
-                                else
-                                {
-                                    x = int.Parse(quantArray[i]);
-                                }
-
-
-
-
-
-                                if (x >= 0)
-                                {
-                                    var s = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id && s.Tamanho == sizes[i]).FirstOrDefaultAsync();
-
-                                    if (s != null)
-                                    {
-                                        s.Quantidade = x;
-
-                                        _context.Update(s);
-                                    }
-                                    else
-                                    {
-                                        _context.Add(new Stock
-                                        {
-                                            RoupaId = roupa.Id,
-                                            Roupa = roupa,
-                                            Quantidade = x,
-                                            Tamanho = sizes[i]
-                                        });
-                                    }
-
-                                }
-
-
-
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex + " :Error");
-                                return Error();
-                            }
-
-                        }
-                    }
-                    _context.Update(roupa);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RoupaExists(roupa.Id))
-                    {
-                        return NotFound();
+                        roupa.Preco = oldPriceConverted;
                     }
                     else
                     {
-                        throw;
+                        errorMessages.Add($"Houve alterações inválidas no preço antigo ");
+                        ViewBag.errorMessages = errorMessages;
+                        return View(roupa);
                     }
                 }
-                return RedirectToAction(nameof(Listagem));
             }
-            ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo", roupa.CategoriaId);
+            catch (Exception)
+            {
+                errorMessages.Add($"Houve alterações inválidas no preço antigo ");
+                ViewBag.errorMessages = errorMessages;
+                return View(roupa);
+            }
+
+
+            try
+            {
+                if (float.TryParse(formData["Preco"], out float preco))
+                {
+                    roupa.Preco = preco;
+                }
+                else
+                {
+                    errorMessages.Add($"O valor inserido no Preco não é no formato correto - 12,4 ");
+                    ViewBag.errorMessages = errorMessages;
+                    return View(roupa);
+                }
+
+            }
+            catch (Exception)
+            {
+                errorMessages.Add($"O valor inserido no Preco é Inválido");
+                ViewBag.errorMessages = errorMessages;
+                return View(roupa);
+            }
+
+
+            if (ModelState.IsValid)
+            {
+
+                //Lista do Stock inserido
+                var stockList = new List<Stock>();
+
+                //Guardar os parametros recebidos pelo form
+                string[] quantArray = { formData["Quant_XS"], formData["Quant_S"], formData["Quant_M"], formData["Quant_L"], formData["Quant_XL"], formData["Quant_XXL"] };
+
+                //Tamanhos existentes
+                string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
+
+                //Lista de stock que existe na DB
+                List<Stock> stockDB = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id).ToListAsync();
+
+                //Lista de novos stocks para serem adcionados a DB
+                List<Stock> newStocks = new List<Stock>();
+
+                //Loop pela quantidade recebida
+                for (int i = 0; i < quantArray.Length; i++)
+                {
+                    if (String.IsNullOrEmpty(quantArray[i]))
+                    {
+
+                        try
+                        {
+                            if (int.TryParse(quantArray[i], out int quantidade))
+                            {
+                                //stock temporario
+                                var tempStock = stockDB.FirstOrDefault(stock => stock.Tamanho == sizes[i]);
+
+                                if (tempStock != null) //Quer dizer que  existe já o stock na DB
+                                {
+                                    //Alteramos a quantidade
+                                    tempStock.Quantidade = quantidade;
+                                    statusMessages.Add($"Foi alterada a quantidade peças de {roupa.Name} - {sizes[i]} para {quantidade} ");
+                                }
+                                else
+                                {
+                                    Stock newStock = new()
+                                    {
+                                        RoupaId = roupa.Id,
+                                        Roupa = roupa,
+                                        Quantidade = quantidade,
+                                        Tamanho = sizes[i]
+                                    };
+                                    //Adiciono a lista de novo stock
+                                    newStocks.Add(newStock);
+
+                                    statusMessages.Add($"Foi adicionada {quantidade} peças de {roupa.Name} - {sizes[i]}");
+                                }
+                            }
+                            else
+                            {
+                                errorMessages.Add($"No tamanho {sizes[i]} o valor inserido é invalido");
+
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            errorMessages.Add($"No tamanho {sizes[i]} houve um erro");
+                        }
+
+                    }
+                }
+
+
+
+                //Atualizar a DB
+                _context.AddRange(newStocks);
+                _context.UpdateRange(stockDB);
+                _context.Update(roupa);
+                await _context.SaveChangesAsync();
+
+                TempData["statusMessages"] = statusMessages;
+                TempData["errorMessages"] = errorMessages;
+
+                return RedirectToAction(nameof(Material), new { id = roupa.Id });
+            }
+
+          
             return View(roupa);
         }
 
@@ -626,5 +713,38 @@ namespace ShoraWebsite.Controllers
         {
             return (_context.Roupa?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+
+        private bool TryGetUserPerfil(out int? perfilID)
+        {
+            perfilID = null;
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                var perfil = _context.Perfils.FirstOrDefault(p => p.UserId == userId);
+                if (perfil != null)
+                {
+                    perfilID = perfil.Id;
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool TryGetRoupaFromDatabase(int roupaId, out Roupa roupa)
+        {
+            roupa = _context.Roupa.Include(r => r.Categoria).FirstOrDefault(r => r.Id == roupaId);
+            return roupa != null;
+        }
+
+        private bool TryGetStock(int roupaId, string size, out Stock stock)
+        {
+            stock = _context.StockMaterial.FirstOrDefault(s => s.Roupa.Id == roupaId && s.Tamanho == size);
+            return stock != null;
+        }
+
     }
 }

@@ -45,7 +45,12 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Categoria.Tipo)
         </dd>
-
+        <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Preco)
+        </dt>
+        <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Preco)
+        </dd>
     </dl>
 </div>
 
@@ -95,29 +100,33 @@
     </form>
 </div>
 
-<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel" >
-    <div class="carousel-inner">
-        @for (var i = 0; i < ViewBag.fotos.Length; i++)
-        {
+@if (ViewBag.fotos != null)
+{
+    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @for (var i = 0; i < ViewBag.fotos.Length; i++)
+            {
 
-            string s = "/Documentos/FotosRoupa/" + Model.Name + "/" + ViewBag.fotos[i];
+                string s = "/Documentos/FotosRoupa/" + Model.Name + "/" + ViewBag.fotos[i];
 
-            <div class="carousel-item @(i == 0 ? "active" : "")">
-                <img src="@s" class="d-block w-100" alt="...">
-            </div>
+                <div class="carousel-item @(i == 0 ? "active" : "")">
+                    <img src="@s" class="d-block w-100" alt="...">
+                </div>
 
-        }
+            }
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </div>
 
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
-</div>
+}
 
 
 <div>

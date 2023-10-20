@@ -238,7 +238,7 @@ namespace ShoraWebsite.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categoria");
+                    b.ToTable("Categoria", (string)null);
                 });
 
             modelBuilder.Entity("shora.Models.Perfil", b =>
@@ -264,7 +264,7 @@ namespace ShoraWebsite.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Perfils");
+                    b.ToTable("Perfils", (string)null);
                 });
 
             modelBuilder.Entity("shora.Models.Reserva", b =>
@@ -296,7 +296,7 @@ namespace ShoraWebsite.Data.Migrations
 
                     b.HasIndex("RoupaId");
 
-                    b.ToTable("Reserva");
+                    b.ToTable("Reserva", (string)null);
                 });
 
             modelBuilder.Entity("shora.Models.Roupa", b =>
@@ -327,7 +327,7 @@ namespace ShoraWebsite.Data.Migrations
 
                     b.HasIndex("CategoriaId");
 
-                    b.ToTable("Roupa");
+                    b.ToTable("Roupa", (string)null);
                 });
 
             modelBuilder.Entity("ShoraWebsite.Models.Stock", b =>
@@ -352,7 +352,7 @@ namespace ShoraWebsite.Data.Migrations
 
                     b.HasIndex("RoupaId");
 
-                    b.ToTable("StockMaterial");
+                    b.ToTable("StockMaterial", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

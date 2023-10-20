@@ -1,0 +1,154 @@
+﻿@model IEnumerable<shora.Models.Reserva>
+
+
+
+@if (ViewBag.statusMessages != null)
+{
+    <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+        @foreach (var s in ViewBag.statusMessages)
+        {
+            <p>@s</p>
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+    </div>
+}
+
+
+@if (ViewBag.errorMessages != null)
+{
+    <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+        @foreach (var s in ViewBag.errorMessages)
+        {
+            <p>@s</p>
+
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+    </div>
+}
+
+<h2> Lista de Reservas </h2>
+
+
+
+@if (Model.Any(r => r.Vendida == true))
+{
+    float lucro = 0;
+    foreach (var r in Model)
+    {
+        if (r.Vendida == true && r.Roupa != null)
+        {
+            var temp = r.Quantidade * r.Roupa.Preco;
+            lucro += temp;
+        }
+    }
+    <p>Lucro : @lucro </p>
+
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Nome do Comprador
+            </th>
+
+            <th>
+                Nome do Material
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantidade)
+            </th>
+            
+
+            <th>Vendida/Reservada</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <!--Primweiro aparece as reservas não vendidas-->
+        @foreach (var item in Model)
+        {
+            if (!item.Vendida)
+            {
+
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem=>item.Perfil.FirstName) @Html.DisplayFor(modelItem=>item.Perfil.LastName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Roupa.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem=>item.Quantidade)
+                    </td>
+                    
+
+                    <td>
+                        <form method="post" asp-action="SwitchVendida" asp-route-id="@item.Id">
+                            <input type="hidden" name="reserva.Id" value="@item.Id" />
+                            <input type="hidden" name="reserva.RoupaId" value="@item.RoupaId" />
+                            <input type="hidden" name="reserva.PerfilId" value="@item.PerfilId" />
+                            <input type="hidden" name="reserva.Quantidade" value="@item.Quantidade" />
+                            <input type="hidden" name="reserva.Tamanho" value="@item.Tamanho" />
+                            <input type="hidden" name="reserva.Vendida" value="@item.Vendida" />
+
+                            <button type="submit" class="btn" onclick="return confirm('De certeza que queres trocar o status de @item.Roupa.Name do user @item.Perfil.FirstName @item.Perfil.LastName?')">
+                                <img src="/Documentos/Icons/switchOffBox.png" height="30" width="30" />
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+
+        }
+        <!-- Separator -->
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            if (item.Vendida)
+            {
+
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem=>item.Perfil.FirstName) @Html.DisplayFor(modelItem=>item.Perfil.LastName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Roupa.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem=>item.Quantidade)
+                    </td>
+                   
+                    <td>
+                        <form method="post" asp-action="SwitchVendida" asp-route-id="@item.Id">
+                            <input type="hidden" name="reserva.Id" value="@item.Id" />
+                            <input type="hidden" name="reserva.RoupaId" value="@item.RoupaId" />
+                            <input type="hidden" name="reserva.PerfilId" value="@item.PerfilId" />
+                            <input type="hidden" name="reserva.Quantidade" value="@item.Quantidade" />
+                            <input type="hidden" name="reserva.Tamanho" value="@item.Tamanho" />
+                            <input type="hidden" name="reserva.Vendida" value="@item.Vendida" />
+
+                            <button type="submit" class="btn" onclick="return confirm('De certeza que queres trocar o status de @item.Roupa.Name do user @item.Perfil.FirstName @item.Perfil.LastName?')">
+                                <img src="/Documentos/Icons/switchOnBox.png" height="30" width="30" />
+                            </button>
+                        </form>
+
+                    </td>
+
+                </tr>
+            }
+
+        }
+
+
+    </tbody>
+
+</table>
+
