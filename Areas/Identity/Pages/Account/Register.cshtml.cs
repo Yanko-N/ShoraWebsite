@@ -75,18 +75,19 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
         public class InputModel
         {
 
-            [Required]
+            [Required(ErrorMessage ="É necessario o Primeiro Nome")]
             [Display(Name = "Primeiro Nome")]
+
             public string FirstName { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "É necessario o Ultimo Nome")]
             [Display(Name = "Ultimo Nome")]
             public string LastName { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage = "É necessario o Email válido")]
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; }
@@ -95,7 +96,7 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage = "É necessario uma password")]
             [StringLength(100, ErrorMessage = "O(a) {0} deve ter pelo menos {2} e no máximo {1} caracteres de comprimento.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
