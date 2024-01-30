@@ -1,0 +1,47 @@
+﻿@model IEnumerable<ShoraWebsite.Models.Reserva>
+
+
+@if (ViewBag.statusMessages != null)
+{
+    <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+        @foreach (var s in ViewBag.statusMessages)
+        {
+            <p>@s</p>
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+    </div>
+}
+
+
+@if (ViewBag.errorsMessages != null)
+{
+    <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+        @foreach (var s in ViewBag.errorsMessages)
+        {
+            <p>@s</p>
+
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+    </div>
+}
+
+
+<div class="container">
+    <div class="row">
+        <h2> Minhas Reservas </h2>
+    </div>
+    
+
+    <!-- COLOCAR AQUI UMA IMAGAEM ?? -->
+</div>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <partial name="MyListing" model="@Model" />
+        </div>
+
+
+    </div>
+</div>

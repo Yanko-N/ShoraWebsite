@@ -1,0 +1,50 @@
+﻿@model IEnumerable<ShoraWebsite.Models.Reserva>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Nome do Material
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantidade)
+            </th>
+            <th>Tamanho</th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Envio)
+            </th>
+            
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Roupa.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem=>item.Quantidade)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem=>item.Tamanho)
+                </td>
+
+                <th>
+                    @item.Envio
+                </th>
+
+                
+                
+            </tr>
+
+        }
+
+    </tbody>
+
+</table>
+

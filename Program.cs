@@ -11,6 +11,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+builder.Services.AddRazorPages();
+builder.Services.AddSignalR();
+
+
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -47,9 +51,29 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+
+app.MapHub<ChatHub>("/chatHub");
+
+
+//Este acho que tem de estar primeiro pois é o default
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+//app.MapControllerRoute(
+//    name: "chatHub",
+//    pattern:"chatHub",
+//    defaults: new {Controller="Chat", Action="Chat" });
+
+app.MapControllerRoute(
+    name: "ordered",
+    pattern: "Order/{value?}",
+    defaults: new {Controller="Reservas", Action="Order" }
+    );
+   
+
+
 app.MapRazorPages();
 
 app.MapHub<ChatHub>("/ChatHub");

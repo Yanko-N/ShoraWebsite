@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using ShoraWebsite.Data;
+using ShoraWebsite.Models;
 
 namespace ShoraWebsite.Areas.Identity.Pages.Account
 {
@@ -142,7 +143,7 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
 
                     //Tem de se criar aqui o utilizador perfil
                     _applicationDbContext.Perfils.Add(
-                        new shora.Models.Perfil
+                        new Perfil
                         {
                             UserId = user.Id,
                             User = user,

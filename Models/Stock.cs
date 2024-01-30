@@ -9,7 +9,7 @@ namespace ShoraWebsite.Models
 
         public int RoupaId { get; set; }
 
-        public shora.Models.Roupa? Roupa { get; set; }
+        public Roupa? Roupa { get; set; }
 
         public string Tamanho { get; set; }
 

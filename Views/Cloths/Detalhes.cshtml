@@ -1,8 +1,29 @@
-﻿@model shora.Models.Roupa
-<head>
-    <script src="./lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="./js/site.js" ></script>
-</head>
+﻿@model ShoraWebsite.Models.Roupa
+
+@if (ViewBag.statusMessages != null)
+{
+    <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+        @foreach (var s in ViewBag.statusMessages)
+        {
+            <p>@s</p>
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+    </div>
+}
+
+
+@if (ViewBag.errorsMessages != null)
+{
+    <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+        @foreach (var s in ViewBag.errorsMessages)
+        {
+            <p>@s</p>
+
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+    </div>
+}
+
 <div>
     <h4>Roupa</h4>
     <hr />
@@ -25,68 +46,81 @@
 </div>
 
 
-<div class="form-group">
-    @{
-        string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
-
-    }
-    <table>
-        <tr>
-            <th>Tamanho</th>
-            <th></th>
-            <th>Quantidade</th>
-        </tr>
-
-        <tr>
-            <td>
-                @{
-                    foreach(var s in ViewBag.Stock)
-                    {
-                         @s.Tamanho<br />
-                    }
-                }
-            </td>
-            <td ></td>
-            <td>
-                @{
-                    foreach (var s in ViewBag.Stock)
-                    {
-                        @s.Quantidade<br />
-                    }
-                }
-
-            </td>
-        </tr>
-    </table>
-
-   @if (ViewBag.fotos != null)
-{
-    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            @for (var i = 0; i < ViewBag.fotos.Length; i++)
-            {
-
-                string s = "/Documentos/FotosRoupa/" + Model.Name + "/" + ViewBag.fotos[i];
-
-                <div class="carousel-item @(i == 0 ? "active" : "")">
-                    <img src="@s" class="d-block w-100" alt="...">
-                </div>
+@{
+    if (ViewBag.Stock != null)
+    {
+        <div class="form-group">
+            @{
+                string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
 
             }
+            <table>
+                <tr>
+                    <th>Tamanho</th>
+                    <th></th>
+                    <th>Quantidade</th>
+                </tr>
+
+                <tr>
+                    <td>
+                        @{
+                            foreach (var s in ViewBag.Stock)
+                            {
+                                @s.Tamanho
+
+                                <br />
+                            }
+                        }
+                    </td>
+                    <td></td>
+                    <td>
+                        @{
+                            foreach (var s in ViewBag.Stock)
+                            {
+                                @s.Quantidade
+
+                                <br />
+                            }
+                        }
+
+                    </td>
+                </tr>
+            </table>
         </div>
 
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
-
+    }
 }
 
+<div>
+
+    @if (ViewBag.fotos != null)
+    {
+        <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                @for (var i = 0; i < ViewBag.fotos.Length; i++)
+                {
+
+                    string s = "/Documentos/FotosRoupa/" + Model.Name + "/" + ViewBag.fotos[i];
+
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <img src="@s" class="d-block w-100" alt="...">
+                    </div>
+
+                }
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+    }
+</div>
 
 <div>
 

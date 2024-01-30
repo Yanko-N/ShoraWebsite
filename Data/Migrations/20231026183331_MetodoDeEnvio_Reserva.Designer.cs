@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShoraWebsite.Data;
 
@@ -11,9 +12,10 @@ using ShoraWebsite.Data;
 namespace ShoraWebsite.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231026183331_MetodoDeEnvio_Reserva")]
+    partial class MetodoDeEnvio_Reserva
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -224,7 +226,7 @@ namespace ShoraWebsite.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ShoraWebsite.Models.Categoria", b =>
+            modelBuilder.Entity("shora.Models.Categoria", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -241,38 +243,7 @@ namespace ShoraWebsite.Data.Migrations
                     b.ToTable("Categoria");
                 });
 
-            modelBuilder.Entity("ShoraWebsite.Models.Message", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<bool>("AdminMessage")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Messagem")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TargetId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("TimeSended")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Messages");
-                });
-
-            modelBuilder.Entity("ShoraWebsite.Models.Perfil", b =>
+            modelBuilder.Entity("shora.Models.Perfil", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -298,7 +269,7 @@ namespace ShoraWebsite.Data.Migrations
                     b.ToTable("Perfils");
                 });
 
-            modelBuilder.Entity("ShoraWebsite.Models.Reserva", b =>
+            modelBuilder.Entity("shora.Models.Reserva", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -333,7 +304,7 @@ namespace ShoraWebsite.Data.Migrations
                     b.ToTable("Reserva");
                 });
 
-            modelBuilder.Entity("ShoraWebsite.Models.Roupa", b =>
+            modelBuilder.Entity("shora.Models.Roupa", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -440,7 +411,7 @@ namespace ShoraWebsite.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ShoraWebsite.Models.Perfil", b =>
+            modelBuilder.Entity("shora.Models.Perfil", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
@@ -449,15 +420,15 @@ namespace ShoraWebsite.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ShoraWebsite.Models.Reserva", b =>
+            modelBuilder.Entity("shora.Models.Reserva", b =>
                 {
-                    b.HasOne("ShoraWebsite.Models.Perfil", "Perfil")
+                    b.HasOne("shora.Models.Perfil", "Perfil")
                         .WithMany("Reservas")
                         .HasForeignKey("PerfilId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ShoraWebsite.Models.Roupa", "Roupa")
+                    b.HasOne("shora.Models.Roupa", "Roupa")
                         .WithMany()
                         .HasForeignKey("RoupaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -468,9 +439,9 @@ namespace ShoraWebsite.Data.Migrations
                     b.Navigation("Roupa");
                 });
 
-            modelBuilder.Entity("ShoraWebsite.Models.Roupa", b =>
+            modelBuilder.Entity("shora.Models.Roupa", b =>
                 {
-                    b.HasOne("ShoraWebsite.Models.Categoria", "Categoria")
+                    b.HasOne("shora.Models.Categoria", "Categoria")
                         .WithMany()
                         .HasForeignKey("CategoriaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -481,7 +452,7 @@ namespace ShoraWebsite.Data.Migrations
 
             modelBuilder.Entity("ShoraWebsite.Models.Stock", b =>
                 {
-                    b.HasOne("ShoraWebsite.Models.Roupa", "Roupa")
+                    b.HasOne("shora.Models.Roupa", "Roupa")
                         .WithMany()
                         .HasForeignKey("RoupaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -490,7 +461,7 @@ namespace ShoraWebsite.Data.Migrations
                     b.Navigation("Roupa");
                 });
 
-            modelBuilder.Entity("ShoraWebsite.Models.Perfil", b =>
+            modelBuilder.Entity("shora.Models.Perfil", b =>
                 {
                     b.Navigation("Reservas");
                 });
