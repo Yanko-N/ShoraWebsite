@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using shora.Models;
 using ShoraWebsite.Models;
 
 namespace ShoraWebsite.Data
@@ -16,5 +15,6 @@ namespace ShoraWebsite.Data
         public DbSet<Perfil>? Perfils { get; set; }
         public DbSet<Reserva>? Reserva { get; set; }
         public DbSet<Stock>? StockMaterial { get; set; }
+        public DbSet<Message>? Messages { get; set; }
     }
 }

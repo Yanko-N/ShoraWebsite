@@ -1,4 +1,4 @@
-﻿@model shora.Models.Roupa
+﻿@model ShoraWebsite.Models.Roupa
 <head>
     <script src="./js/site.js"></script>
 </head>
@@ -15,7 +15,7 @@
 }
 
 
-@if (ViewBag.errorMessages != null)
+@if (ViewBag.errorsMessages != null)
 {
     <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
         @foreach (var s in ViewBag.errorMessages)

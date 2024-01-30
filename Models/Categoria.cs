@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace shora.Models
+namespace ShoraWebsite.Models
 {
     public class Categoria
     {

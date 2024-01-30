@@ -2,18 +2,20 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-<style>
-    .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48
-    }
-</style>
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
+            <a asp-action="MinhasReservas" asp-controller="Reservas">
+                <span >
+                    <img src="/Documentos/Icons/carrinhoCompras.png" height=" 30" />
+                </span>
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Alterar Conta">
-                <span class="material-symbols-outlined">
+                <span >
                     <img src="/Documentos/Icons/account_circle.png" height=" 30" />
                 </span>
             </a>

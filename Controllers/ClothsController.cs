@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ShoraWebsite.Data;
-using shora.Models;
+using ShoraWebsite.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
 using ShoraWebsite.Models;
@@ -10,6 +10,8 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using Humanizer;
+using Newtonsoft.Json.Linq;
+using System.Collections;
 
 namespace ShoraWebsite.Controllers
 {
@@ -32,8 +34,13 @@ namespace ShoraWebsite.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Listagem()
         {
+            ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
+            ViewBag.errorsMessages = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
+
             try
             {
+
+
                 var stock = await _context.StockMaterial.Include(r => r.Roupa)
                     .OrderBy(s => s.Roupa.CategoriaId)
                     .ToArrayAsync();
@@ -52,8 +59,7 @@ namespace ShoraWebsite.Controllers
                 }
 
 
-                TempData["statusMessages"] = null;
-                TempData["errosMessages"] = null;
+
 
                 return View(roupas);
 
@@ -69,6 +75,9 @@ namespace ShoraWebsite.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Detalhes(int? id)
         {
+            ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
+            ViewBag.errorsMessages = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
+
             if (id == null || _context.Roupa == null)
             {
                 return NotFound();
@@ -94,9 +103,14 @@ namespace ShoraWebsite.Controllers
                 ViewData["Fotos"] = roupa.Foto.Split(";");
             }
 
+            List<Stock> stock = new List<Stock>();
+            if (_context.StockMaterial != null)
+            {
+                stock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id).ToListAsync();
 
-            ViewData["Stock"] = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
-                .ToListAsync();
+            }
+
+            ViewBag.Stock = stock;
 
             return View(roupa);
         }
@@ -105,20 +119,13 @@ namespace ShoraWebsite.Controllers
         public async Task<IActionResult> Material(int? id)
         {
 
+            ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
+            ViewBag.errorsMessages = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
+
 
             if (id == null || _context.Roupa == null)
             {
                 return NotFound();
-            }
-
-            if (TempData.TryGetValue("statusMessages", out var statusMessages))
-            {
-                ViewBag.statusMessages = statusMessages;
-            }
-
-            if (TempData.TryGetValue("errorsMessages", out var errorMessages))
-            {
-                ViewBag.errorMessages = errorMessages;
             }
 
             var roupa = await _context.Roupa
@@ -154,6 +161,7 @@ namespace ShoraWebsite.Controllers
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Material([Bind("Id,Name,CategoriaId,Preco,Foto")] Roupa roupa, IFormCollection formData)
         {
+
             //verifico se o id passado é igual ao do form e vou buscar a roupa e verifico se a roupa existe na DB
             if (roupa.Id.ToString() != formData["roupaId"] || (roupa = await _context.Roupa.Include(r => r.Categoria).FirstOrDefaultAsync(r => r.Id == roupa.Id)) == null)
             {
@@ -193,14 +201,14 @@ namespace ShoraWebsite.Controllers
             List<string> statusMessages = new List<string>();
 
             //Array com as strings das fotos
-            
+
             if (String.IsNullOrWhiteSpace(roupa.Foto))
             {
                 ViewData["Fotos"] = null;
             }
             else
             {
-                ViewData["Fotos"] =  roupa.Foto.Split(";");
+                ViewData["Fotos"] = roupa.Foto.Split(";");
             }
 
             //Passo por todos os tamanhos recebidos e por seu Tamanho
@@ -270,18 +278,18 @@ namespace ShoraWebsite.Controllers
             var stockPage = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id).ToListAsync();
 
             ViewData["Stock"] = stockPage;
-           
+
 
 
 
             if (errorMessages.Count != 0)
             {
-                ViewBag.errorMessages = errorMessages;
+                ViewBag.errorsMessages = errorMessages;
 
             }
             else
             {
-                ViewBag.errorMessages = null;
+                ViewBag.errorsMessages = null;
             }
 
             if (statusMessages.Count != 0)
@@ -305,15 +313,8 @@ namespace ShoraWebsite.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult Adicionar()
         {
-            if (TempData.TryGetValue("statusMessages", out var statusMessages))
-            {
-                ViewBag.statusMessages = statusMessages;
-            }
-
-            if (TempData.TryGetValue("errorsMessages", out var errorMessages))
-            {
-                ViewBag.errorMessages = errorMessages;
-            }
+            ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
+            ViewBag.errorsMessages = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
 
 
             ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo");
@@ -325,6 +326,8 @@ namespace ShoraWebsite.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Adicionar([Bind("Id,Name,CategoriaId,Preco,Foto")] Roupa roupa, List<IFormFile> Foto, IFormCollection formData)
         {
+
+            bool invalid = false;
             //Lista de erros e de status
             List<string> errorMessages = new List<string>();
             List<string> statusMessages = new List<string>();
@@ -341,7 +344,7 @@ namespace ShoraWebsite.Controllers
                 else
                 {
                     errorMessages.Add($"O valor inserido no Preco não é no formato correto - 12,4 ");
-                    ViewBag.errorMessages = errorMessages;
+                    ViewBag.errorsMessages = errorMessages;
                     return View(roupa);
                 }
 
@@ -349,7 +352,7 @@ namespace ShoraWebsite.Controllers
             catch (Exception)
             {
                 errorMessages.Add($"O valor inserido no Preco é Inválido");
-                ViewBag.errorMessages = errorMessages;
+                ViewBag.errorsMessages = errorMessages;
                 return View(roupa);
             }
 
@@ -412,36 +415,32 @@ namespace ShoraWebsite.Controllers
                     //Se realmente veio algum parametro de input
                     if (!String.IsNullOrWhiteSpace(quantArray[i]))
                     {
-                        try
+
+
+                        if (int.TryParse(quantArray[i], out int quantidade) && quantidade > 0)
                         {
-                            if (int.TryParse(quantArray[i], out int quantidade) && quantidade > 0)
+                            stockList.Add(new Stock
                             {
-                                stockList.Add(new Stock
-                                {
-                                    Quantidade = quantidade,
-                                    Tamanho = sizes[i],
-                                    Roupa = roupa,
-                                    RoupaId = roupa.Id
-                                });
-                            }
-
+                                Quantidade = quantidade,
+                                Tamanho = sizes[i],
+                                Roupa = roupa,
+                                RoupaId = roupa.Id
+                            });
+                            statusMessages.Add($"Foi adicionado com sucesso {quantidade} a peca {roupa.Name} - {sizes[i]}");
                         }
-                        catch (Exception)
+                        else
                         {
-                            errorMessages.Add($"Quantidade inserida no tamanho {sizes[i]} tem de ser do formato \" 1,23 \" .");
+                            errorMessages.Add($"Quantidade inserida da peca {roupa.Name} - {sizes[i]}  tem de ser do formato inteiro e maior que 0");
+                            invalid = true;
 
                         }
-                    }
-                    else
-                    {
-                        errorMessages.Add($"Quantidade inserida no tamanho {sizes[i]} veio vazia.");
+
                     }
 
                 }
 
-               
-                TempData["errorsMessages"] = errorMessages;
-                TempData["statusMessages"] = statusMessages;
+
+
                 //Guardo na DB o Stock Total
                 await _context.StockMaterial.AddRangeAsync(stockList);
                 //Adiciono a DB a roupa
@@ -452,14 +451,23 @@ namespace ShoraWebsite.Controllers
                 //DB guarda as mudanças
                 await _context.SaveChangesAsync();
 
+
+
+
                 //Houve erros na criação da roupa
-                if (errorMessages.Count > 0)
+                if (!invalid)
                 {
-                    return RedirectToAction(nameof(Editar), new { id = roupa.Id });
+                    TempData["errorsMessages"] = errorMessages;
+                    TempData["statusMessages"] = statusMessages;
+                    return RedirectToAction(nameof(Detalhes), new { id = roupa.Id });
+
                 }
                 else
                 {
-                    return RedirectToAction(nameof(Material), new { id = roupa.Id });
+                    //Adicionar erros
+                    ViewBag.errorsMessages = errorMessages;
+                    ViewBag.statusMessages = statusMessages;
+                    return RedirectToAction(nameof(Editar), new { id = roupa.Id });
                 }
 
 
@@ -473,31 +481,26 @@ namespace ShoraWebsite.Controllers
 
                 errorMessages.AddRange(errors);
 
-                ViewBag.errorMessages = errorMessages;
+                ViewBag.errorsMessages = errorMessages;
                 return View(roupa);
             }
 
         }
 
-    
+
         //Get
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Editar(int? id)
         {
+            ViewData["statusMessages"] = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
+            ViewData["errorsMessages"] = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
+
             if (id == null || _context.Roupa == null)
             {
                 return NotFound();
             }
 
-            if (TempData.TryGetValue("statusMessages", out var statusMessages))
-            {
-                ViewBag.statusMessages = statusMessages;
-            }
 
-            if (TempData.TryGetValue("errorsMessages", out var errorMessages))
-            {
-                ViewBag.errorMessages = errorMessages;
-            }
 
             var roupa = await _context.Roupa.FindAsync(id);
 
@@ -509,12 +512,12 @@ namespace ShoraWebsite.Controllers
 
             ViewData["Foto"] = roupa.Foto;
 
-
             var stock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
                 .ToListAsync();
 
             ViewData["Stock"] = stock;
             TempData["Price"] = roupa.Preco.ToString();
+
             return View(roupa);
         }
 
@@ -522,33 +525,47 @@ namespace ShoraWebsite.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Editar(int id, [Bind("Id,Name,CategoriaId,Preco,Foto")] Roupa roupa, IFormCollection formData)
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Name,CategoriaId,Foto")] Roupa roupa, IFormCollection formData)
         {
+            //Bool para checkar se afinal
+            bool invalid = false;
+
             if (roupa.Id != id)
             {
                 return NotFound();
+            }
+
+            if (_context.StockMaterial == null)
+            {
+                return Problem("Na base de Dados não existe stock de material");
             }
 
             //Lista de erros e de status
             List<string> errorMessages = new List<string>();
             List<string> statusMessages = new List<string>();
 
+
+
+
+
+            float? oldPrice = null;
             ViewBag.Stock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id).ToListAsync();
             ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo", roupa.CategoriaId);
+            ViewData["statusMessages"] = statusMessages;
 
             try
             {
 
-                if (TempData.TryGetValue("Price", out var oldPrice))
+                if (TempData.TryGetValue("Price", out var oldPriceConverted))
                 {
-                    if (float.TryParse((string?)oldPrice, out float oldPriceConverted))
+                    if (float.TryParse((string?)oldPriceConverted, out float TrueOldPrice))
                     {
-                        roupa.Preco = oldPriceConverted;
+                        oldPrice = TrueOldPrice;
                     }
                     else
                     {
                         errorMessages.Add($"Houve alterações inválidas no preço antigo ");
-                        ViewBag.errorMessages = errorMessages;
+                        ViewBag.errorsMessages = errorMessages;
                         return View(roupa);
                     }
                 }
@@ -556,7 +573,7 @@ namespace ShoraWebsite.Controllers
             catch (Exception)
             {
                 errorMessages.Add($"Houve alterações inválidas no preço antigo ");
-                ViewBag.errorMessages = errorMessages;
+                ViewBag.errorsMessages = errorMessages;
                 return View(roupa);
             }
 
@@ -570,7 +587,11 @@ namespace ShoraWebsite.Controllers
                 else
                 {
                     errorMessages.Add($"O valor inserido no Preco não é no formato correto - 12,4 ");
-                    ViewBag.errorMessages = errorMessages;
+                    ViewBag.errorsMessages = errorMessages;
+
+
+                    ViewBag.Price = oldPrice;
+
                     return View(roupa);
                 }
 
@@ -578,10 +599,15 @@ namespace ShoraWebsite.Controllers
             catch (Exception)
             {
                 errorMessages.Add($"O valor inserido no Preco é Inválido");
-                ViewBag.errorMessages = errorMessages;
+                ViewBag.errorsMessages = errorMessages;
+
+                ViewBag.Price = oldPrice;
                 return View(roupa);
             }
 
+
+            //Adcionar a viewBag o preço antigo
+            ViewBag.Price = oldPrice;
 
             if (ModelState.IsValid)
             {
@@ -604,51 +630,44 @@ namespace ShoraWebsite.Controllers
                 //Loop pela quantidade recebida
                 for (int i = 0; i < quantArray.Length; i++)
                 {
-                    if (String.IsNullOrEmpty(quantArray[i]))
+                    if (!String.IsNullOrWhiteSpace(quantArray[i]))
                     {
 
-                        try
+                        if (int.TryParse(quantArray[i], out int quantidade))
                         {
-                            if (int.TryParse(quantArray[i], out int quantidade))
+                            //stock temporario
+                            var tempStock = stockDB.FirstOrDefault(stock => stock.Tamanho == sizes[i]);
+
+                            if (tempStock != null) //Quer dizer que  existe já o stock na DB
                             {
-                                //stock temporario
-                                var tempStock = stockDB.FirstOrDefault(stock => stock.Tamanho == sizes[i]);
-
-                                if (tempStock != null) //Quer dizer que  existe já o stock na DB
-                                {
-                                    //Alteramos a quantidade
-                                    tempStock.Quantidade = quantidade;
-                                    statusMessages.Add($"Foi alterada a quantidade peças de {roupa.Name} - {sizes[i]} para {quantidade} ");
-                                }
-                                else
-                                {
-                                    Stock newStock = new()
-                                    {
-                                        RoupaId = roupa.Id,
-                                        Roupa = roupa,
-                                        Quantidade = quantidade,
-                                        Tamanho = sizes[i]
-                                    };
-                                    //Adiciono a lista de novo stock
-                                    newStocks.Add(newStock);
-
-                                    statusMessages.Add($"Foi adicionada {quantidade} peças de {roupa.Name} - {sizes[i]}");
-                                }
+                                //Alteramos a quantidade
+                                tempStock.Quantidade = quantidade;
+                                statusMessages.Add($"Foi alterada a quantidade peças de {roupa.Name} - {sizes[i]} para {quantidade} ");
                             }
                             else
                             {
-                                errorMessages.Add($"No tamanho {sizes[i]} o valor inserido é invalido");
+                                Stock newStock = new()
+                                {
+                                    RoupaId = roupa.Id,
+                                    Roupa = roupa,
+                                    Quantidade = quantidade,
+                                    Tamanho = sizes[i]
+                                };
+                                //Adiciono a lista de novo stock
+                                newStocks.Add(newStock);
 
+                                statusMessages.Add($"Foi adicionada {quantidade} peças de {roupa.Name} - {sizes[i]}");
                             }
                         }
-                        catch (Exception)
+                        else
                         {
-                            errorMessages.Add($"No tamanho {sizes[i]} houve um erro");
+                            errorMessages.Add($"No tamanho {sizes[i]} o valor inserido não é um inteiro");
+                            invalid = true;
+
                         }
 
                     }
                 }
-
 
 
                 //Atualizar a DB
@@ -657,28 +676,43 @@ namespace ShoraWebsite.Controllers
                 _context.Update(roupa);
                 await _context.SaveChangesAsync();
 
-                TempData["statusMessages"] = statusMessages;
-                TempData["errorMessages"] = errorMessages;
 
-                return RedirectToAction(nameof(Material), new { id = roupa.Id });
+                if (!invalid)
+                {
+                    TempData["statusMessages"] = statusMessages;
+                    return RedirectToAction(nameof(Detalhes), new { id = roupa.Id });
+                }
+                else
+                {
+
+                    ViewBag.statusMessages = statusMessages;
+                    ViewBag.errorsMessages = errorMessages;
+
+                    return View(roupa);
+                }
+
             }
 
-          
             return View(roupa);
         }
+
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (_context.Roupa == null)
+            //Lista de erros e de status
+            List<string> errorMessages = new List<string>();
+            List<string> statusMessages = new List<string>();
+
+            if (_context.Roupa == null && !RoupaExists(id))
             {
                 return Problem("A base de Dados não contém Roupa nenhuma");
             }
 
             var roupa = await _context.Roupa.FindAsync(id);
-
-            if (roupa != null)
+            try
             {
+
                 string destination = Path.Combine(_he.ContentRootPath, "wwwroot/Documentos/FotosRoupa/", roupa.Name);
 
                 if (Directory.Exists(destination))
@@ -686,25 +720,40 @@ namespace ShoraWebsite.Controllers
                     Directory.Delete(destination, true);
                 }
                 _context.Roupa.Remove(roupa);
+
+
+
+                //Vamos deletar também o stock que tem a roupa
+
+                var listStock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id).ToArrayAsync();
+
+                _context.StockMaterial.RemoveRange(listStock);
+
+
+
+                //APAGAR TB AS RESERVAS COM A T SHIRT???
+
+                var listReserva = await _context.Reserva.Where(r => r.RoupaId == roupa.Id).ToArrayAsync();
+                _context.Reserva.RemoveRange(listReserva);
+
+                statusMessages.Add($"A peça {roupa.Name} foi removida com sucesso");
+
+                TempData["errorsMessages"] = errorMessages;
+                TempData["statusMessages"] = statusMessages;
+
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                errorMessages.Add($"A peça {roupa.Name} não foi removida com sucesso");
+
+                TempData["errorsMessages"] = errorMessages;
+                TempData["statusMessages"] = statusMessages;
+
             }
 
 
-            //Vamos deletar também o stock que tem a roupa
-
-            var listStock = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id).ToArrayAsync();
-
-            _context.StockMaterial.RemoveRange(listStock);
-
-
-
-            //TEMOS DE APAGAR TB AS RESERVAS COM A T SHIRT???
-
-            var listReserva = await _context.Reserva.Where(r => r.RoupaId == roupa.Id).ToArrayAsync();
-            _context.Reserva.RemoveRange(listReserva);
-
-
-
-            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Listagem));
         }

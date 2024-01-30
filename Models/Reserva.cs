@@ -1,7 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.DotNet.Scaffolding.Shared.CodeModifier.CodeChange;
+using ShoraWebsite.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace shora.Models
+namespace ShoraWebsite.Models
 {
+
+
     public class Reserva
     {
         [Key]
@@ -20,6 +24,8 @@ namespace shora.Models
         public string? Tamanho { get; set; } 
 
         public bool Vendida { get; set; } = false;
+
+        public MetodoDeEnvio Envio { get; set; } = MetodoDeEnvio.Nenhum;
 
     }
 }

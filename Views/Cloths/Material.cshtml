@@ -1,4 +1,4 @@
-﻿@model shora.Models.Roupa
+﻿@model ShoraWebsite.Models.Roupa
 <head>
     <script src="./lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/site.js"></script>
@@ -16,10 +16,10 @@
 }
 
 
-@if (ViewBag.errorMessages != null)
+@if (ViewBag.errorsMessages != null)
 {
     <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
-        @foreach (var s in ViewBag.errorMessages)
+        @foreach (var s in ViewBag.errorsMessages)
         {
             <p>@s</p>
 
