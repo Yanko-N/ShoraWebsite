@@ -14,7 +14,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Envio)
             </th>
-            
+            <th> Entrar em Contacto</th>
         </tr>
     </thead>
     <tbody>
@@ -34,11 +34,15 @@
                     @Html.DisplayFor(modelItem=>item.Tamanho)
                 </td>
 
-                <th>
+                <td>
                     @item.Envio
-                </th>
+                </td>
 
-                
+                <td>
+                    <a asp-action="Chat" asp-controller="Accounts" asp-route-id="@item.Id">
+                        <img src="~/documentos/icons/chaticon.png" height="30" width="30" />
+                        </a>
+                </td>
                 
             </tr>
 

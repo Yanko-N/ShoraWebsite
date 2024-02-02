@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ShoraWebsite.Data;
-using shora.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using ShoraWebsite.Models;
@@ -14,7 +13,6 @@ using ShoraWebsite.Data.Migrations;
 
 namespace ShoraWebsite.Controllers
 {
-    [Authorize(Roles ="Admin")]
     public class AccountsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -28,8 +26,18 @@ namespace ShoraWebsite.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
         }
-        public  IActionResult Index()
+
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult AdminPainel()
         {
+            return View();
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult Index()
+        {
+
             var users = _userManager.Users;
             var model = new List<UsersRolesViewModel>();
             foreach (var user in users)
@@ -45,14 +53,34 @@ namespace ShoraWebsite.Controllers
             return View(model);
         }
 
+
+        [Authorize(Roles = "Admin,Cliente")]
         public IActionResult Chat(int? id)
         {
-            if (id == null && !ReservaExiste(id))
+
+
+            if (!ReservaExiste(id))
             {
-                return NotFound();
+                return RedirectToAction("Index", "Home");
             }
-            return View();
+
+            var reserva = _context.Reserva
+                .Include(x => x.Roupa)
+                .Include(x => x.Perfil)
+                .Include(x => x.Perfil.User)
+                .SingleOrDefault(x => x.Id == id);
+            if (reserva.Perfil.User.UserName == User.Identity.Name || User.IsInRole("Admin"))
+            {
+                ViewData["MetodoId"] = new SelectList(ReservasController.GetMetodoDeEnvio(), "value", "metodo", reserva.Envio);
+                ViewBag.Id = id;
+                return View(reserva);
+            }
+
+            return RedirectToAction("Index", "Home");
+
         }
+
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Editar(string? id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -73,7 +101,7 @@ namespace ShoraWebsite.Controllers
             return View(model);
         }
 
-        
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(string id, UsersRolesViewModel model)

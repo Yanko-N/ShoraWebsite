@@ -148,7 +148,8 @@ namespace ShoraWebsite.Areas.Identity.Pages.Account
                             UserId = user.Id,
                             User = user,
                             FirstName = Input.FirstName,
-                            LastName=Input.LastName
+                            LastName = Input.LastName,
+                            Key = KeyGenerator.GerarUmaChaveDeSegurança()
                         });
 
                     await _applicationDbContext.SaveChangesAsync();

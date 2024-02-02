@@ -25,11 +25,11 @@
     </div>
 }
 
-<h4>Alterar Quantidade da Reserva</h4>
+<h4>Alterar a Reserva</h4>
 <hr />
 <div class="row">
     <div class="col-md-4 pad">
-        <form asp-action="Editar">
+        <form asp-action="Editar" asp-controller="Reservas">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="PerfilId" />
@@ -59,7 +59,7 @@
 </div>
 
 <div>
-    <a asp-action="Listagem" class="botao nav-link">Voltar a lista de Reservas </a>
+    <a asp-action="Listagem" asp-controller="Reservas" class="botao nav-link">Voltar a lista de Reservas </a>
 </div>
 
 @section Scripts {

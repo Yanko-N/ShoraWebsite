@@ -51,10 +51,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-
-app.MapHub<ChatHub>("/chatHub");
-
-
 //Este acho que tem de estar primeiro pois é o default
 
 app.MapControllerRoute(
@@ -76,5 +72,5 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-app.MapHub<ChatHub>("/ChatHub");
+app.MapHub<ChatHub>("/Accounts/Chat");
 app.Run();

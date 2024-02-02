@@ -3,7 +3,30 @@
 
 // Write your JavaScript code.
 
+function aplicarFiltroOnClick() {
+    var selectedCategories = $("input[name='categories']:checked").map(function () {
+        return $(this).val();
+    }).get();
+    var selectedSizes = $("input[name='sizes']:checked").map(function () {
+        return $(this).val();
+    }).get();
 
+    $.ajax({
+        url: "/Home/AplicarFiltro",
+        type: "GET",
+        data: {
+            categories: selectedCategories.join(','),
+            sizes: selectedSizes.join(',')
+        },
+        success: function (result) {
+            $("#ListingIndexId").html(result);
+        },
+        error: function (error) {
+            console.error("Error:", error);
+        }
+
+    });
+}
 function clothsOnClick(size) {
     var checkBox = document.getElementById(size);
     var textInput = document.getElementById("ID_" + size);

@@ -17,7 +17,7 @@ namespace ShoraWebsite.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.20")
+                .HasAnnotation("ProductVersion", "6.0.26")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -249,25 +249,31 @@ namespace ShoraWebsite.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<bool>("AdminMessage")
+                    b.Property<string>("IV")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Messagem")
+                    b.Property<int>("ReservaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SenderId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TargetId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("TimeSended")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ReservaId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Messages");
                 });
@@ -281,6 +287,10 @@ namespace ShoraWebsite.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -438,6 +448,23 @@ namespace ShoraWebsite.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ShoraWebsite.Models.Message", b =>
+                {
+                    b.HasOne("ShoraWebsite.Models.Reserva", "Reserva")
+                        .WithMany()
+                        .HasForeignKey("ReservaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Reserva");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ShoraWebsite.Models.Perfil", b =>

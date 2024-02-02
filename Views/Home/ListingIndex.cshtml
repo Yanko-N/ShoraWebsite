@@ -1,0 +1,62 @@
+﻿@model IEnumerable<ShoraWebsite.Models.Roupa>
+
+
+
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <a asp-action="Material" asp-controller="Cloths" asp-route-id="@item.Id" class="dark-text cardMaterial">
+                <div class="card">
+                    <div id="carouselShoraIndex_@item.Id" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner">
+                            @{
+                                var fotos = item.Foto.Split(";");
+                            }
+                            @for (var i = 0; i < fotos.Length; i++)
+                            {
+                                string s = $"/Documentos/FotosRoupa/{item.Name}/" + fotos[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="@s" class="d-block w-100" alt=" @i slide" style="max-height:270px; min-height:270px;">
+                                </div>
+                            }
+                        </div>
+                        @if(fotos.Length > 1)
+                        {
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselShoraIndex_@item.Id" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carouselShoraIndex_@item.Id" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            </button>
+                        }
+                        
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        <p class="card-text">
+                            <strong>Categoria: </strong>@item.Categoria.Tipo<br />
+                            @if(item.Quantidade == 0)
+                            {
+                                <strong style="color:red;">ESGOTADO</strong>
+                                <br/>
+                            }
+                            else
+                            {
+                                <strong>Quantidade: </strong>
+
+                                @item.Quantidade
+
+                                <br />
+
+                            }
+                            <strong>Preço: </strong>@item.Preco
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    }
+</div>
+

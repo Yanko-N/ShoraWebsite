@@ -1,19 +1,122 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ShoraWebsite.Models.IndexViewModel
+
+@{
+    ViewData["Title"] = "Pagina Inicial";
 }
 
+
+<head>
+    <script src="./lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./js/site.js"></script>
+</head>
+
+
 <div class="text-center">
-    <h1 class="display-4">Welcome 
-        @if (User.IsInRole("Admin"))
-        {
-            <span>Admin</span>
-        }
-        else
-        {
-            <span>Cliente</span>
-        }
-    </h1>
+
+
+    @if (Model.IndexFotos.Count > 0)
+    {
+        <div class="container">
+            <div class="row padding-div">
+
+
+                <div class="col">
+
+                    <div class="row">
+                        <h1 class="display-5">Skateboarding Crew and Media</h1>
+                        <p>
+                            @Html.Raw(Model.HtmlText)
+
+                        </p>
+                    </div>
+                    
+
+
+                </div>
+
+                <div class="col-5">
+                    <div id="carouselShoraIndex" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner">
+                            @for (var i = 0; i < Model.IndexFotos.Count; i++)
+                            {
+
+                                string s = "/Documentos/IndexFotos/" + Model.IndexFotos[i];
+
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="@s" class="d-block w-100" alt=" @i slide" style="min-height:650px;">
+                                </div>
+
+                            }
+                        </div>
+                        
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselShoraIndex" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+
+                        </button>
+                        <button id="nextBotaoCarousel"class="carousel-control-next" type="button" data-bs-target="#carouselShoraIndex" data-bs-slide="next">
+
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
+
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row padding-divWithBorder ">
+
+                <div class="col padding-divWithBorder text-center">
+
+                    <div class="col-md-6 text-left">
+                        <h5>Categorias</h5>
+                        <div class="form-check">
+                            @foreach (var category in Model.Roupas.Select(r => r.Categoria.Tipo).Distinct())
+                            {
+                                <input type="checkbox" class="form-check-input category-checkbox" name="categories" value="@category" />
+                                <label class="form-check-label" for="category-@category">@category</label>
+                                <br />
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h5>Tamanhos</h5>
+                        <div class="form-check">
+                            @foreach (var size in new string[] { "XS", "S", "M", "L", "XL", "XXL" })
+                            {
+                                <input type="checkbox" class="form-check-input size-checkbox" name="sizes" value="@size" />
+                                <label class="form-check-label" for="size-@size">@size</label>
+                                <br />
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <button id="aplicarFiltros" class="botao noUnderline" onclick="aplicarFiltroOnClick()">Aplicar Filtros</button>
+                    </div>
+
+                </div>
+
+                <div class="col-9" id="ListingIndexId">
+                    <partial name="ListingIndex" model="@Model.Roupas" />
+                </div>
+            </div>
+        </div>
+    }
+
   
-
-
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Esperar a página dar load
+        var nextButton = document.getElementById("nextBotaoCarousel");
+
+        // O botao foi encontrado?Hope yes
+        if (nextButton) {
+            // E tau
+            nextButton.click();
+        }
+    });
+
+  
+</script>

@@ -1,25 +1,59 @@
 /* Add this to your CSS file or style section */
 
-.chat-body {
-    max-height: 220px; /* Adjust the max height as needed */
-    overflow-y: auto;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    min-height : 220px;
-    min-width : 150px;
+
+.padding-divWithBorder {
+    padding: 40px; 
+    border: 1px solid #ccc; 
+}
+.padding-div {
+    padding: 40px;
+    
 }
 
-#messagesList {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+
+
+.cardMaterial {
+    color: #000 !important;
+    text-decoration: none !important;
 }
 
-    /* Style individual chat messages if needed */
-    #messagesList li {
-        margin-bottom: 10px;
+
+.button-89 {
+    --b: 3px; /* border thickness */
+    --s: .45em; /* size of the corner */
+    --color: #373B44;
+    padding: calc(.5em + var(--s)) calc(.9em + var(--s));
+    color: var(--color);
+    --_p: var(--s);
+    background: conic-gradient(from 90deg at var(--b) var(--b),#0000 90deg,var(--color) 0) var(--_p) var(--_p)/calc(100% - var(--b) - 2*var(--_p)) calc(100% - var(--b) - 2*var(--_p));
+    transition: .3s linear, color 0s, background-color 0s;
+    outline: var(--b) solid #0000;
+    outline-offset: .6em;
+    font-size: 16px;
+    border: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    text-decoration: none;
+}
+
+    .button-89:hover,
+    .button-89:focus-visible {
+        --_p: 0px;
+        outline-color: var(--color);
+        outline-offset: .05em;
+        --color: #373B44;
+        color: var(--color);
     }
+
+.button-89:active {
+    background: var(--color);
+    color: #fff;
+}
+
+.noUnderline {
+    text-decoration: none;
+}
 
 .tab {
     display: inline-block;

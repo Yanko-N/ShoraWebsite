@@ -8,12 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\Documentos\FotosRoupa\Korner\**" />
     <Compile Remove="wwwroot\Documentos\FotosRoupa\Outside X Shora\**" />
     <Compile Remove="wwwroot\Documentos\FotosRoupa\Shoralhada\**" />
+    <Content Remove="wwwroot\Documentos\FotosRoupa\Korner\**" />
     <Content Remove="wwwroot\Documentos\FotosRoupa\Outside X Shora\**" />
     <Content Remove="wwwroot\Documentos\FotosRoupa\Shoralhada\**" />
+    <EmbeddedResource Remove="wwwroot\Documentos\FotosRoupa\Korner\**" />
     <EmbeddedResource Remove="wwwroot\Documentos\FotosRoupa\Outside X Shora\**" />
     <EmbeddedResource Remove="wwwroot\Documentos\FotosRoupa\Shoralhada\**" />
+    <None Remove="wwwroot\Documentos\FotosRoupa\Korner\**" />
     <None Remove="wwwroot\Documentos\FotosRoupa\Outside X Shora\**" />
     <None Remove="wwwroot\Documentos\FotosRoupa\Shoralhada\**" />
   </ItemGroup>
@@ -33,12 +37,18 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.jQuery.Unobtrusive.Ajax" Version="3.2.6" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.16" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="wwwroot\Documentos\FotosRoupa\" />
-    <Folder Include="wwwroot\Documentos\SkateFotos\" />
+    <Folder Include="wwwroot\Documentos\IndexJson\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\lib\jquery-ajax\jquery.unobtrusive-ajax.js" />
+    <None Include="wwwroot\lib\jquery-ajax\jquery.unobtrusive-ajax.min.js" />
   </ItemGroup>
 
 </Project>

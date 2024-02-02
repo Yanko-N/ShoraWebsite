@@ -3,17 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ShoraWebsite</title>
+    <title>@ViewData["Title"] - Shora</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ShoraWebsite.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3 headerMenu">
+       
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3 sticky-top">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="/Documentos/FotosWebSite/shoraSiteLogo.png" width="120" height="30" />
+                    <img src="/Documentos/FotosWebSite/shoraSiteLogo.png" width="180" height="60" />
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -23,17 +24,7 @@
 
                     @if (User.IsInRole("Admin"))
                     {
-                        <div class="dropdown">
-                            <button class="dropbtn">Administrador</button>
-                            <div class="dropdown-content">
-                                <a class="nav-link text-dark" asp-controller="Categorias" asp-action="Listagem">Gerir Categorias</a>
-                                <a class="nav-link text-dark" asp-controller="Cloths" asp-action="Listagem">Gerir Roupa</a>
-                                <a class="nav-link text-dark" asp-controller="Reservas" asp-action="Listagem">Gerir Reservas</a>
-                                <a class="nav-link text-dark" asp-controller="Accounts" asp-action="Index"> Gerir Contas</a>
-                                
-                            </div>
-                        </div>
-
+                        <a asp-action="AdminPainel" asp-controller="Accounts" class="nav-link text-dark"> Painel Admin</a>
                     }
                     
                 </div>
@@ -51,10 +42,12 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2020 - shora - <a asp-controller="Home" asp-action="Privacy">Quem Somos Nós?</a>
+            &copy; 2020 - shora 
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-ajax/jquery.unobtrusive-ajax.js"></script>
+    <script src="~/lib/jquery-ajax/jquery.unobtrusive-ajax.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

@@ -35,9 +35,6 @@ namespace  ShoraWebsite.Areas.Identity.Pages.Account.Manage
 
 
 
-        public static string MyChat => "MyChat";
-
-        public static string MyChatClass(ViewContext viewContext) => PageNavClass(viewContext, MyChat);
 
 
         /// <summary>

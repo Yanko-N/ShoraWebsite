@@ -5,7 +5,6 @@ using ShoraWebsite.Data;
 using ShoraWebsite.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
-using ShoraWebsite.Models;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
@@ -148,17 +147,21 @@ namespace ShoraWebsite.Controllers
                 ViewData["Fotos"] = null;
             }
 
-
-            ViewData["Stock"] = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
+            var stocks = await _context.StockMaterial.Where(s => s.RoupaId == roupa.Id)
                 .ToListAsync();
+            ViewData["Stock"] = stocks;
 
+            foreach(var s in stocks)
+            {
+                roupa.Quantidade += s.Quantidade;
+            }
 
             return View(roupa);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Cliente")]
         public async Task<IActionResult> Material([Bind("Id,Name,CategoriaId,Preco,Foto")] Roupa roupa, IFormCollection formData)
         {
 
@@ -255,6 +258,7 @@ namespace ShoraWebsite.Controllers
                                     });
                                     //Adiciono a Status Message
                                     statusMessages.Add($"Foram reservados {quantidade} {roupa.Name} {sizes[i]}");
+
                                 }
                                 else
                                 {
@@ -285,6 +289,7 @@ namespace ShoraWebsite.Controllers
             if (errorMessages.Count != 0)
             {
                 ViewBag.errorsMessages = errorMessages;
+                TempData["errorsMessages"] = errorMessages;
 
             }
             else
@@ -295,6 +300,7 @@ namespace ShoraWebsite.Controllers
             if (statusMessages.Count != 0)
             {
                 ViewBag.statusMessages = statusMessages;
+                TempData["statusMessages"] = statusMessages;
 
             }
             else
@@ -306,6 +312,45 @@ namespace ShoraWebsite.Controllers
             _context.UpdateRange(stockList);
             await _context.SaveChangesAsync();
 
+            if (reservaList.Count > 0)
+            {
+                
+                //AQUI MANDAR MENSAGEM PARA O CLIENTE A PARTIR DE UMA CONTA ADMIN
+                var adminsUsers = await _userManager.GetUsersInRoleAsync("Admin");
+                var admin = adminsUsers.FirstOrDefault();
+                if (admin != null)
+                {
+                    var perfilAdmin = _context.Perfils.FirstOrDefault(x => x.UserId == admin.Id);
+                    if (perfilAdmin != null)
+                    {
+                        foreach (var reserva in reservaList)
+                        {
+                            string messageText = $"Olá aqui fala a SHORA, vimos que reservas-te {reserva.Roupa.Name}, diz-nos por aqui como queres que te entreguemos as {reserva.Quantidade} {reserva.Roupa.Categoria.Tipo} e como desejas pagar.";
+
+                            var iv = KeyGenerator.GerarIVDaMensagem();
+
+                            var genereratedMessageClass = new Message
+                            {
+                                ReservaId = reserva.Id,
+                                Text = MessageWrapper.EncryptString(messageText, perfilAdmin.Key, iv),
+                                Timestamp = DateTime.Now,
+                                UserId = perfilAdmin.UserId,
+                                IsAdmin = true,
+                                IV = iv
+                            };
+                            _context.Messages.Add(genereratedMessageClass);
+                            await _context.SaveChangesAsync();
+                            
+                        }
+                            
+                    }
+                }
+            }
+
+            if(errorMessages.Count == 0)
+            {
+                return RedirectToAction("MinhasReservas", "Reservas");
+            }
             return View(roupa);
         }
 
@@ -553,6 +598,9 @@ namespace ShoraWebsite.Controllers
             ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Tipo", roupa.CategoriaId);
             ViewData["statusMessages"] = statusMessages;
 
+
+
+
             try
             {
 
@@ -611,6 +659,18 @@ namespace ShoraWebsite.Controllers
 
             if (ModelState.IsValid)
             {
+                if (formData["oldName"].ToString() != roupa.Name)
+                {
+                    //O nome do produto foi alterado por isso vamos ter que mudar o nome da pasta a qual está guardado
+                    string oldPath = Path.Combine(_he.ContentRootPath, "wwwroot", "Documentos", "FotosRoupa", formData["oldName"].ToString());
+                    string newPath = Path.Combine(_he.ContentRootPath, "wwwroot", "Documentos", "FotosRoupa", roupa.Name);
+
+                    if (Directory.Exists(oldPath))
+                    {
+                        Directory.Move(oldPath, newPath);
+                    }
+                    
+                }
 
                 //Lista do Stock inserido
                 var stockList = new List<Stock>();
@@ -692,6 +752,8 @@ namespace ShoraWebsite.Controllers
                 }
 
             }
+
+           
 
             return View(roupa);
         }

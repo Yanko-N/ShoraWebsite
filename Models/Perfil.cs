@@ -16,6 +16,8 @@ namespace ShoraWebsite.Models
         
         public IdentityUser? User {get; set;}
 
+        public string Key { get; set; }
+
         public virtual ICollection<Reserva>? Reservas { get; set; } = new List<Reserva>();
     }
 }

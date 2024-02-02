@@ -24,7 +24,7 @@ namespace ShoraWebsite.Controllers
 
 
         //Get
-        [Authorize(Roles ="Cliente,Admin")]
+        [Authorize(Roles ="Cliente")]
         public async Task<IActionResult> MinhasReservas()
         {
             ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
@@ -398,7 +398,7 @@ namespace ShoraWebsite.Controllers
 
             return View(reserva);
         }
-        internal static IEnumerable GetMetodoDeEnvio()
+        public static IEnumerable GetMetodoDeEnvio()
         {
             MetodoDeEnvio[] values = (MetodoDeEnvio[])Enum.GetValues(typeof(MetodoDeEnvio));
             var valuesWithMetodos = from value in values

@@ -1,0 +1,85 @@
+﻿@model ShoraWebsite.Models.IndexEditModel
+
+@if (ViewBag.statusMessages != null)
+{
+    <div class="alert alert-success alert-dismissible" role="alert" id="statusMessage">
+        @foreach (var s in ViewBag.statusMessages)
+        {
+            <p>@s</p>
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('statusMessage')"></button>
+    </div>
+}
+
+
+@if (ViewBag.errorsMessages != null)
+{
+    <div class="alert alert-danger alert-dismissible " role="alert" id="errorMessage">
+        @foreach (var s in ViewBag.errorsMessages)
+        {
+            <p>@s</p>
+
+        }
+        <button type="button" class="btn-close" onclick="closePopUpMessage('errorMessage')"></button>
+    </div>
+}
+<div class="container">
+    <div class="row">
+        <div class="col-5">
+            <form asp-action="UpdateIndexModelHtml" asp-controller="Home" method="post">
+                <div class="form-group">
+                    <h2 class="display-6">Texto de apresentação da página Inicial</h2>
+
+                    <textarea name="HtmlText" class="form-control" style="min-height: 400px;">@Model.HtmlText</textarea>
+                    <button type="submit" class="botao">Guardar Texto</button>
+                </div>
+            </form>
+        </div>
+        <div class="col">
+            <div class="row">
+                <form asp-action="AddFoto" asp-controller="Home" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <h1 class="display-2">Adicionar Fotos</h1>
+                        <div class="input-group">
+                            <input name="foto" class="form-control" type="file" multiple height="30"/>
+                            <button type="submit" class="botao">Adicionar Fotos</button>
+
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="row">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.IndexFotos.Count; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <img src="/Documentos/IndexFotos/@Model.IndexFotos[i]" width="60" height="60" />
+                                    </td>
+                                    <td>
+                                        <form asp-action="ApagarFoto" asp-controller="Home" asp-route-name="@Model.IndexFotos[i]">
+                                            <button type="submit" class="botaoDanger" onclick="return confirm('De certeza que queres apagar @Model.IndexFotos[i] ?')">Apagar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    
+</script>
+
