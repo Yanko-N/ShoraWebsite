@@ -18,20 +18,16 @@ connection.on("ReceiveMessage", function (user, message) {
     var userNamePrefix = userNameParts.length > 0 ? userNameParts[0] : message.user.userName;
     li.innerHTML = message.isAdmin ? `<strong>SHORA:</strong> : ${message.text}` : `<strong>${userNamePrefix}:</strong> : ${message.text}`;
 
-    setTimeout(function () {
-        messagesList.scrollTo({
-            top: messagesList.scrollHeight,
-            behavior: "smooth"
-        });
-    }, 0);
+
+    messagesList.scrollTop = messagesList.scrollHeight;
 
 
 });
 
 connection.on("ReceiveChatHistory", function (chatHistory) {
-    
+
     var messagesList = document.getElementById("messagesList");
-   
+
     if (!messagesList) {
         console.error("Element with id 'messagesList' not found.");
         return;
@@ -42,18 +38,14 @@ connection.on("ReceiveChatHistory", function (chatHistory) {
         var li = document.createElement("li");
         document.getElementById("messagesList").appendChild(li);
         var userNameParts = message.user.userName.split('-');
-            var userNamePrefix = userNameParts.length > 0 ? userNameParts[0] : message.user.userName;
+        var userNamePrefix = userNameParts.length > 0 ? userNameParts[0] : message.user.userName;
         li.innerHTML = message.isAdmin ? `<strong>SHORA:</strong> : ${message.text}` : `<strong>${userNamePrefix}:</strong> : ${message.text}`;
 
 
 
     });
-    setTimeout(function () {
-        messagesList.scrollTo({
-            top: messagesList.scrollHeight,
-            behavior: "smooth"
-        });
-    },0);
+
+    messagesList.scrollTop = messagesList.scrollHeight;
 });
 
 connection.start().then(function () {

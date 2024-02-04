@@ -6,27 +6,21 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col">
-            <div class="row">
-                <div class="card">
-                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                        <ul id="messagesList" class="list-group list-group-flush" style="min-height: 200px;"></ul>
+            <div class="card">
+                <div class="card-body chat-box" style="max-height: 400px; overflow-y: auto; min-height:400px;" id="messagesList">
+                    <!--Mensagens-->
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="messageInput" placeholder="Digite sua mensagem..." />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button" id="sendButton">Enviar</button>
+                        </div>
                     </div>
                 </div>
-                <input type="hidden" id="reservaInput" value="@ViewBag.Id" />
-                <input type="hidden" id="userInput" value="@User.Identity.Name" />
             </div>
-            <div class="row">
-                <div class="col-10 pr-1">
-                    <input type="text" class="w-100" id="messageInput" />
-                </div>
-                <div class="col-2 pl-0">
-                    <input type="button" id="sendButton" value="Enviar" />
-                </div>
-            </div>
-
-
-
-
+            <input type="hidden" id="reservaInput" value="@ViewBag.Id" />
+            <input type="hidden" id="userInput" value="@User.Identity.Name" />
         </div>
         <div class="col">
             <table class="table">
@@ -66,7 +60,9 @@
                     </tr>
                 </tbody>
             </table>
-
+           
+                    <hr />
+                
             @if (User.IsInRole("Admin"))
             {
                 <div class="col-sm">
@@ -76,11 +72,7 @@
         </div>
     </div>
 
-    <div class="row p-1">
-        <div class="col-6">
-            <hr />
-        </div>
-    </div>
+   
 </div>
 
 

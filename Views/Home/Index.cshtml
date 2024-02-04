@@ -29,7 +29,7 @@
 
                         </p>
                     </div>
-                    
+
 
 
                 </div>
@@ -48,12 +48,12 @@
 
                             }
                         </div>
-                        
+
                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselShoraIndex" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
 
                         </button>
-                        <button id="nextBotaoCarousel"class="carousel-control-next" type="button" data-bs-target="#carouselShoraIndex" data-bs-slide="next">
+                        <button id="nextBotaoCarousel" class="carousel-control-next" type="button" data-bs-target="#carouselShoraIndex" data-bs-slide="next">
 
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                         </button>
@@ -66,7 +66,19 @@
             <div class="row padding-divWithBorder ">
 
                 <div class="col padding-divWithBorder text-center">
+                    <div class="row">
 
+                        <div class="input-group rounded">
+                            <input id="searchInputId" type="search" name="search" class="form-control rounded" placeholder="Pesquisa" aria-label="Search" aria-describedby="search-addon" />
+
+                            <button type="submit" class="btn btn-outline-dark" onclick="SearchClothsOnClick()">
+                                <img src="/Documentos/Icons/searchIcon.png" height="30" width="30" />
+                            </button>
+
+                        </div>
+
+                    </div>
+                    <hr />
                     <div class="col-md-6 text-left">
                         <h5>Categorias</h5>
                         <div class="form-check">
@@ -92,19 +104,28 @@
                     </div>
 
                     <div class="col">
-                        <button id="aplicarFiltros" class="botao noUnderline" onclick="aplicarFiltroOnClick()">Aplicar Filtros</button>
+                        <button id="aplicarFiltros" class="botao noUnderline" onclick="AplicarFiltroOnClick()">Aplicar Filtros</button>
+                        <button id="removerFiltros" class="botaoDanger noUnderline" onclick="RemoverFiltroOnClick()">Remover Filtros</button>
                     </div>
 
                 </div>
 
                 <div class="col-9" id="ListingIndexId">
-                    <partial name="ListingIndex" model="@Model.Roupas" />
+                    @if (Model.Roupas.Any())
+                    {
+                        <partial name="ListingIndex" model="@Model.Roupas" />
+                    }
+                    else
+                    {
+
+                        <p> Nenhum Item encontrado</p>
+                    }
                 </div>
             </div>
         </div>
     }
 
-  
+
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -118,5 +139,5 @@
         }
     });
 
-  
+
 </script>

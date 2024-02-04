@@ -32,6 +32,11 @@ namespace ShoraWebsite.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AddFoto(List<IFormFile> Foto)
         {
+            List<string> errorsMessages = new List<string>();
+            List<string> statusMessages = new List<string>();
+
+
+
             if (Foto != null)
             {
                 string destination = Path.Combine(_he.ContentRootPath, "wwwroot/Documentos/IndexFotos");
@@ -47,21 +52,47 @@ namespace ShoraWebsite.Controllers
                 //Passo por todas as Fotos Recebidas
                 foreach (var f in Foto)
                 {
-                    //Destino Final
-                    var finalDestination = Path.Combine(destination, f.FileName);
 
-                    //Crio uma Stream nesse caminho,coloco-o lá e fecho
-                    using (FileStream fs = new FileStream(finalDestination, FileMode.Create))
+                    string extensao = System.IO.Path.GetExtension(f.FileName);
+
+                    // Verifico se está numa das extensões permitidas
+                    if (extensao.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
+                        extensao.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                        extensao.Equals(".jpg", StringComparison.OrdinalIgnoreCase))
                     {
-                        f.CopyTo(fs);
+                        //yes
+
+                        //Destino Final
+                        var finalDestination = Path.Combine(destination, f.FileName);
+
+                        //Crio uma Stream nesse caminho,coloco-o lá e fecho
+                        using (FileStream fs = new FileStream(finalDestination, FileMode.Create))
+                        {
+                            f.CopyTo(fs);
+
+                        }
+
+                        statusMessages.Add($"A foto {f.FileName} foi submetida com sucesso");
+                    }
+                    else
+                    {
+
+                        errorsMessages.Add($"A foto submetida {f.FileName} não é do tipo permitida png, jpeg, jpg");
 
                     }
+
+
 
                 }
 
             }
 
+            TempData["statusMessages"] = statusMessages;
+            TempData["errorsMessages"] = errorsMessages;
+
             return RedirectToAction(nameof(ControlIndex));
+
+
 
         }
 
@@ -71,6 +102,9 @@ namespace ShoraWebsite.Controllers
         public IActionResult ApagarFoto(string name)
         {
             string folderFotos = Path.Combine(_he.ContentRootPath, "wwwroot/Documentos/IndexFotos");
+            List<string> errorsMessages = new List<string>();
+            List<string> statusMessages = new List<string>();
+
 
             // Verifico se a a pasta existe
             if (Directory.Exists(folderFotos))
@@ -79,14 +113,30 @@ namespace ShoraWebsite.Controllers
                 if (System.IO.File.Exists(fotoPath))
                 {
                     System.IO.File.Delete(fotoPath);
+                    statusMessages.Add($"A foto {name} foi removida com sucesso");
+                }
+                else
+                {
+                    errorsMessages.Add($"Houve um imprevisto!A fotografia {name} não foi encontrada :<");
+
                 }
             }
+            else
+            {
+                errorsMessages.Add("Houve um imprevisto!A pasta não foi encontrada :<");
+            }
+
+
+            TempData["statusMessages"] = statusMessages;
+            TempData["errorsMessages"] = errorsMessages;
             return RedirectToAction(nameof(ControlIndex));
         }
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ControlIndex()
         {
+            ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
+            ViewBag.errorsMessages = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
 
             IndexJsonModel indexJsonModel = new IndexJsonModel();
             IndexEditModel indexEditModel = new IndexEditModel();
@@ -124,7 +174,67 @@ namespace ShoraWebsite.Controllers
         }
 
         [HttpGet]
-        public IActionResult AplicarFiltro(string categories, string sizes)
+        public IActionResult Search(string search)
+        {
+            List<Roupa> searchedRoupas = new List<Roupa>();
+            List<Stock> stock = new List<Stock>();
+
+            if (!String.IsNullOrWhiteSpace(search))
+            {
+                searchedRoupas = _context.Roupa.Include(x => x.Categoria).Where(x => x.Name.Contains(search)).ToList();
+
+
+                stock = _context.StockMaterial.Include(r => r.Roupa).Where(x => x.Roupa.Name.Contains(search)).ToList();
+
+
+            }
+            else
+            {
+                searchedRoupas = _context.Roupa.Include(x => x.Categoria).ToList();
+                stock = _context.StockMaterial.Include(r => r.Roupa).ToList();
+            }
+
+
+            foreach (var roupa in searchedRoupas)
+            {
+                foreach (var s in stock)
+                {
+                    if (roupa.Id == s.RoupaId)
+                    {
+                        roupa.Quantidade += s.Quantidade;
+                    }
+                }
+            }
+
+            return PartialView("ListingIndex", searchedRoupas);
+        }
+
+        [HttpGet]
+        public IActionResult RemoverFiltro()
+        {
+            var allRoupas = _context.Roupa.Include(x => x.Categoria).ToList();
+
+
+            var stock = _context.StockMaterial.Include(r => r.Roupa).ToList();
+
+            foreach (var roupa in allRoupas)
+            {
+                foreach (var s in stock)
+                {
+                    if (roupa.Id == s.RoupaId)
+                    {
+                        roupa.Quantidade += s.Quantidade;
+                    }
+                }
+            }
+
+
+
+            return PartialView("ListingIndex", allRoupas);
+        }
+
+        [HttpGet]
+        public IActionResult AplicarFiltro(string search,string categories, string sizes)
         {
 
             List<string> categorias = categories == null ? new List<string>() : categories.Split(",").ToList();
@@ -136,33 +246,68 @@ namespace ShoraWebsite.Controllers
             List<Roupa> allSelected = new List<Roupa>();
             List<Roupa> trueSelected = new List<Roupa>();
 
-
-
-            if (allRoupas != null)
+            if (!String.IsNullOrWhiteSpace(search))
             {
-                if (categorias.Count == 0)
+                if (allRoupas != null)
                 {
-                    selectedCategoriasRoupas = allRoupas;
-                }
-                else
-                {
-                    selectedCategoriasRoupas = allRoupas.Where(r => categorias.Contains(r.Categoria.Tipo)).ToList();
+                    if (categorias.Count == 0)
+                    {
+                        selectedCategoriasRoupas = allRoupas.Where(x => x.Name.Contains(search)).ToList();
+                    }
+                    else
+                    {
+                        selectedCategoriasRoupas = allRoupas.Where(r => categorias.Contains(r.Categoria.Tipo) && r.Name.Contains(search)).ToList();
+                    }
                 }
             }
+            else
+            {
+                if (allRoupas != null)
+                {
+                    if (categorias.Count == 0)
+                    {
+                        selectedCategoriasRoupas = allRoupas;
+                    }
+                    else
+                    {
+                        selectedCategoriasRoupas = allRoupas.Where(r => categorias.Contains(r.Categoria.Tipo)).ToList();
+                    }
+                }
+
+               
+            }
+
 
             var stock = _context.StockMaterial.Include(r => r.Roupa).Where(x => selectedCategoriasRoupas.Contains(x.Roupa)).ToList();
             var stockSelected = new List<Stock>();
 
-
-            if (tamanhos.Count == 0)
+            if (!String.IsNullOrWhiteSpace(search))
             {
-                 stockSelected = stock;
+                if (tamanhos.Count == 0)
+                {
+                    stockSelected = stock.Where(x=>x.Roupa.Name.Contains(search)).ToList();
+                }
+                else
+                {
+                    stockSelected = stock.Where(x => tamanhos.Contains(x.Tamanho) && x.Roupa.Name.Contains(search)).ToList();
+
+                }
             }
             else
             {
-                 stockSelected = stock.Where(x => tamanhos.Contains(x.Tamanho)).ToList();
+                if (tamanhos.Count == 0)
+                {
+                    stockSelected = stock;
+                }
+                else
+                {
+                    stockSelected = stock.Where(x => tamanhos.Contains(x.Tamanho)).ToList();
+
+                }
+
 
             }
+           
 
             foreach (var s in stockSelected)
             {
@@ -181,7 +326,6 @@ namespace ShoraWebsite.Controllers
                     }
                 }
             }
-
 
 
 
@@ -204,7 +348,7 @@ namespace ShoraWebsite.Controllers
             return RedirectToAction(nameof(ControlIndex));
         }
 
-      
+
 
         public async Task SaveIndexJson(IndexJsonModel indexJsonModel)
         {
@@ -273,7 +417,7 @@ namespace ShoraWebsite.Controllers
                 }
             }
         }
-       
+
         [Authorize(Roles = "Admin")]
         public async Task<IndexJsonModel> GetIndexJson()
         {
@@ -370,13 +514,13 @@ namespace ShoraWebsite.Controllers
             return indexJsonModel;
         }
 
-       
+
         public async Task ErrorHandlingForSavingError(string jsonDataPath, IndexJsonModel indexJsonModel)
         {
             System.IO.File.Delete(jsonDataPath);
             await SaveIndexJson(indexJsonModel);
         }
-        
+
         public async Task<IActionResult> Index()
         {
             IndexViewModel indexViewModel = new IndexViewModel();
@@ -423,6 +567,14 @@ namespace ShoraWebsite.Controllers
 
 
             return View(indexViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(IFormCollection formData)
+        {
+
+            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
