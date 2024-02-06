@@ -104,7 +104,9 @@ namespace ShoraWebsite.Models
                         Timestamp = DateTime.Now,
                         UserId = identityUser.Id,
                         IsAdmin = admin,
-                        IV = iv
+                        IV = iv,
+                        IsVistaAdmin = admin,
+                        IsVistaCliente=!admin
                     };
                     _context.Messages.Add(genereratedMessageClass);
 

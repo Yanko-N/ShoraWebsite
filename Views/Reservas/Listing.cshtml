@@ -93,7 +93,11 @@
                     <a asp-action="Chat" asp-controller="Accounts" asp-route-id="@item.Reserva.Id">
                         <img src="~/documentos/icons/chaticon.png" height="30" width="30"/>
                     </a>
-                    <strong class="noUnderline text-dark">@item.UnreadMessages</strong>
+                    @if (item.UnreadMessages>0)
+                    {
+                        <strong class="noUnderline" style="color:red;">@item.UnreadMessages</strong>
+
+                    }
                 </td>
                 <td>
 

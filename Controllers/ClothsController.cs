@@ -336,7 +336,9 @@ namespace ShoraWebsite.Controllers
                                 Timestamp = DateTime.Now,
                                 UserId = perfilAdmin.UserId,
                                 IsAdmin = true,
-                                IV = iv
+                                IV = iv,
+                                IsVistaAdmin=true,
+                                IsVistaCliente=false
                             };
                             _context.Messages.Add(genereratedMessageClass);
                             await _context.SaveChangesAsync();

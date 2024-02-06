@@ -68,7 +68,7 @@ connection.start().then(function () {
 });
 
 
-document.getElementById("sendButton").addEventListener("click", function (event) {
+document.getElementById("sendButton").addEventListener("click", function () {
     SendMessage()
 });
 
@@ -88,9 +88,5 @@ function SendMessage() {
     });
 
     document.getElementById("messageInput").value = "";
-
-
-
-    event.preventDefault();
 
 }
