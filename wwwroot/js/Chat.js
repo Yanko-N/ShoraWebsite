@@ -5,7 +5,7 @@ var connection = new signalR.HubConnectionBuilder().withUrl("/Accounts/Chat").bu
 //Disable the send button until connection is established.
 document.getElementById("sendButton").disabled = true;
 
-connection.on("ReceiveMessage", function (user, message) {
+connection.on("ReceiveMessage", function (user,mensagemId, message) {
     var li = document.createElement("li");
     var messagesList = document.getElementById("messagesList");
 
@@ -13,6 +13,7 @@ connection.on("ReceiveMessage", function (user, message) {
         console.error("Element with id 'messagesList' not found.");
         return;
     }
+    connection.invoke("CheckIfIsVista", user, mensagemId);
     messagesList.appendChild(li);
     var userNameParts = user.split('-');
     var userNamePrefix = userNameParts.length > 0 ? userNameParts[0] : message.user.userName;

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ShoraWebsite.Models.Reserva>
+﻿@model IEnumerable<ShoraWebsite.Models.MyReservationsViewModel>
 
 <table class="table">
     <thead>
@@ -7,12 +7,12 @@
                 Nome do Material
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Quantidade)
+                @Html.DisplayNameFor(model => model.Reserva.Quantidade)
             </th>
             <th>Tamanho</th>
 
             <th>
-                @Html.DisplayNameFor(model => model.Envio)
+                @Html.DisplayNameFor(model => model.Reserva.Envio)
             </th>
             <th> Entrar em Contacto</th>
         </tr>
@@ -24,24 +24,30 @@
 
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Roupa.Name)
+                    @Html.DisplayFor(modelItem => item.Reserva.Roupa.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem=>item.Quantidade)
-                </td>
-
-                <td>
-                    @Html.DisplayFor(modelItem=>item.Tamanho)
+                    @Html.DisplayFor(modelItem => item.Reserva.Quantidade)
                 </td>
 
                 <td>
-                    @item.Envio
+                    @Html.DisplayFor(modelItem => item.Reserva.Tamanho)
                 </td>
 
                 <td>
-                    <a asp-action="Chat" asp-controller="Accounts" asp-route-id="@item.Id">
+                    @item.Reserva.Envio
+                </td>
+
+                <td>
+                    <a asp-action="Chat" asp-controller="Accounts" asp-route-id="@item.Reserva.Id">
                         <img src="~/documentos/icons/chaticon.png" height="30" width="30" />
-                        </a>
+                        
+                    </a>
+                    @if (item.UnreadMessages > 0)
+                    {
+                        <strong class="text-dark noUnderline">@item.UnreadMessages</strong>
+
+                    }
                 </td>
                 
             </tr>

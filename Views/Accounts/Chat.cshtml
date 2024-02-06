@@ -42,6 +42,10 @@
                         <td>@Html.DisplayFor(model => model.Tamanho)</td>
                     </tr>
                     <tr>
+                        <th scope="row">Numero</th>
+                        <td>@Html.DisplayFor(model => model.Perfil.User.PhoneNumber)</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Vendida</th>
                         <td>
                             @if (Model.Vendida)

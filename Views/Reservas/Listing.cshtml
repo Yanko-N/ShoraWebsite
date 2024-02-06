@@ -1,15 +1,15 @@
-﻿@model IEnumerable<ShoraWebsite.Models.Reserva>
+﻿@model IEnumerable<ShoraWebsite.Models.MyReservationsViewModel>
 
 
 
-@if (Model.Any(r => r.Vendida == true))
+@if (Model.Any(r => r.Reserva.Vendida == true))
 {
     float lucro = 0;
     foreach (var r in Model)
     {
-        if (r.Vendida == true && r.Roupa != null)
+        if (r.Reserva.Vendida == true && r.Reserva.Roupa != null)
         {
-            var temp = r.Quantidade * r.Roupa.Preco;
+            var temp = r.Reserva.Quantidade * r.Reserva.Roupa.Preco;
             lucro += temp;
         }
     }
@@ -28,12 +28,12 @@
                 Nome do Material
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Quantidade)
+                @Html.DisplayNameFor(model => model.Reserva.Quantidade)
             </th>
             <th>Tamanho</th>
 
             <th>
-                @Html.DisplayNameFor(model => model.Envio)
+                @Html.DisplayNameFor(model => model.Reserva.Envio)
             </th>
 
             <th>Vendida/Reservada</th>
@@ -49,34 +49,34 @@
 
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem=>item.Perfil.FirstName) @Html.DisplayFor(modelItem=>item.Perfil.LastName)
+                    @Html.DisplayFor(modelItem => item.Reserva.Perfil.FirstName) @Html.DisplayFor(modelItem => item.Reserva.Perfil.LastName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Roupa.Name)
+                    @Html.DisplayFor(modelItem => item.Reserva.Roupa.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem=>item.Quantidade)
+                    @Html.DisplayFor(modelItem => item.Reserva.Quantidade)
                 </td>
 
                 <td>
-                    @Html.DisplayFor(modelItem=>item.Tamanho)
+                    @Html.DisplayFor(modelItem => item.Reserva.Tamanho)
                 </td>
 
                 <th>
-                   @item.Envio
+                    @item.Reserva.Envio
                 </th>
 
                 <td>
-                    <form method="post" asp-action="SwitchVendida" asp-route-id="@item.Id">
-                        <input type="hidden" name="reserva.Id" value="@item.Id" />
-                        <input type="hidden" name="reserva.RoupaId" value="@item.RoupaId" />
-                        <input type="hidden" name="reserva.PerfilId" value="@item.PerfilId" />
-                        <input type="hidden" name="reserva.Quantidade" value="@item.Quantidade" />
-                        <input type="hidden" name="reserva.Tamanho" value="@item.Tamanho" />
-                        <input type="hidden" name="reserva.Vendida" value="@item.Vendida" />
+                    <form method="post" asp-action="SwitchVendida" asp-route-id="@item.Reserva.Id">
+                        <input type="hidden" name="reserva.Id" value="@item.Reserva.Id" />
+                        <input type="hidden" name="reserva.RoupaId" value="@item.Reserva.RoupaId" />
+                        <input type="hidden" name="reserva.PerfilId" value="@item.Reserva.PerfilId" />
+                        <input type="hidden" name="reserva.Quantidade" value="@item.Reserva.Quantidade" />
+                        <input type="hidden" name="reserva.Tamanho" value="@item.Reserva.Tamanho" />
+                        <input type="hidden" name="reserva.Vendida" value="@item.Reserva.Vendida" />
 
-                        <button type="submit" class="btn" onclick="return confirm('De certeza que queres trocar o status de @item.Roupa.Name do user @item.Perfil.FirstName @item.Perfil.LastName?')">
-                            @if (item.Vendida)
+                        <button type="submit" class="btn" onclick="return confirm('De certeza que queres trocar o status de @item.Reserva.Roupa.Name do user @item.Reserva.Perfil.FirstName @item.Reserva.Perfil.LastName?')">
+                            @if (item.Reserva.Vendida)
                             {
                                  <img src="/Documentos/Icons/switchOnBox.png" height="30" width="30" />
 
@@ -90,19 +90,20 @@
                     </form>
                 </td>
                 <td>
-                    <a asp-action="Chat" asp-controller="Accounts" asp-route-id="@item.Id">
+                    <a asp-action="Chat" asp-controller="Accounts" asp-route-id="@item.Reserva.Id">
                         <img src="~/documentos/icons/chaticon.png" height="30" width="30"/>
                     </a>
+                    <strong class="noUnderline text-dark">@item.UnreadMessages</strong>
                 </td>
                 <td>
 
-                    <a asp-action="Editar" asp-route-id="@item.Id">
+                    <a asp-action="Editar" asp-route-id="@item.Reserva.Id">
                         <img src="/Documentos/Icons/edit.png" height="30" width="30" />
                     </a>
                     
                 </td>
                 <td>
-                    <a asp-action="Delete" asp-route-id="@item.Id" onclick="return confirm('De certeza que queres apagar a reserva de @item.Roupa.Name - @item.Tamanho pertecente  a @item.Perfil.FirstName @item.Perfil.LastName ?')">
+                    <a asp-action="Delete" asp-route-id="@item.Reserva.Id" onclick="return confirm('De certeza que queres apagar a reserva de @item.Reserva.Roupa.Name - @item.Reserva.Tamanho pertecente  a @item.Reserva.Perfil.FirstName @item.Reserva.Perfil.LastName ?')">
                         <img src="/Documentos/Icons/delete.png" height="30" width="30" />
                     </a>
 

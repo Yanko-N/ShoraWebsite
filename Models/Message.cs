@@ -20,5 +20,9 @@ namespace ShoraWebsite.Models
         public bool IsAdmin { get; set; } = false;
 
         public string IV { get; set; }
+
+        public bool IsVistaAdmin { get; set; } = false;
+        public bool IsVistaCliente { get; set; } = false;
+
     }
 }

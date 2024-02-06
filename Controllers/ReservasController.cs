@@ -16,7 +16,7 @@ namespace ShoraWebsite.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public ReservasController(ApplicationDbContext context,UserManager<IdentityUser> userManager)
+        public ReservasController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -24,19 +24,30 @@ namespace ShoraWebsite.Controllers
 
 
         //Get
-        [Authorize(Roles ="Cliente")]
+        [Authorize(Roles = "Cliente")]
         public async Task<IActionResult> MinhasReservas()
         {
             ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
             ViewBag.errorsMessages = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
 
+            List<MyReservationsViewModel> models = new List<MyReservationsViewModel>();
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-
-            return View(await _context.Reserva
-                .Where(r=>r.Perfil.UserId == user.Id)
+            var reservas = await _context.Reserva
+                .Where(r => r.Perfil.UserId == user.Id)
            .Include(r => r.Perfil)
            .Include(r => r.Roupa)
-           .ToListAsync());
+           .ToListAsync();
+
+            foreach (var reserva in reservas)
+            {
+                models.Add(new MyReservationsViewModel()
+                {
+                    Reserva = reserva,
+                    UnreadMessages = _context.Messages.Where(x => x.ReservaId == reserva.Id).Count(x => x.IsVistaCliente == false)
+                });
+            }
+
+            return View(models);
 
         }
 
@@ -90,12 +101,23 @@ namespace ShoraWebsite.Controllers
             ViewBag.statusMessages = TempData.TryGetValue("statusMessages", out var statusMessages) ? statusMessages : null;
             ViewBag.errorsMessages = TempData.TryGetValue("errorsMessages", out var errorMessages) ? errorMessages : null;
 
+            List<MyReservationsViewModel> models = new List<MyReservationsViewModel>();
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var reservas = await _context.Reserva
+                .Include(r => r.Perfil)
+                .Include(r => r.Roupa)
+                .ToListAsync();
 
+            foreach (var reserva in reservas)
+            {
+                models.Add(new MyReservationsViewModel()
+                {
+                    Reserva = reserva,
+                    UnreadMessages = _context.Messages.Where(x => x.ReservaId == reserva.Id).Count(x => x.IsVistaAdmin == false)
+                });
+            }
 
-            return View(await _context.Reserva
-           .Include(r => r.Perfil)
-           .Include(r => r.Roupa)
-           .ToListAsync());
+            return View(models);
 
         }
 
@@ -120,8 +142,8 @@ namespace ShoraWebsite.Controllers
                 if (metodo.ToString().Contains(search))
                 {
                     var listComMetodo = _context.Reserva
-                        .Include(x=>x.Roupa)
-                        .Include(x=>x.Perfil)
+                        .Include(x => x.Roupa)
+                        .Include(x => x.Perfil)
                         .Where(x => x.Envio == metodo);
 
                     foreach (var r in listComMetodo)
@@ -349,24 +371,24 @@ namespace ShoraWebsite.Controllers
                     //Verifico se ainda existe stock com o mesma roupa e tamanho
                     if (_context.StockMaterial != null && _context.StockMaterial.Any(s => s.RoupaId == reserva.RoupaId && s.Tamanho == reserva.Tamanho))
                     {
-                        
-                        
-                            //get stock
-                            var stock = _context.StockMaterial.FirstOrDefault(s => s.RoupaId == reserva.RoupaId && s.Tamanho == reserva.Tamanho);
 
-                            //se o stock - a quantidade é maior que 0
-                            if ((stock.Quantidade += dif) <= 0)
-                            {
-                                invalid = true;
-                                errorMessages.Add($"Não existe stock suficente para adicionar a reserva");
 
-                            }
-                            else
-                            {
-                                _context.Update(stock);
+                        //get stock
+                        var stock = _context.StockMaterial.FirstOrDefault(s => s.RoupaId == reserva.RoupaId && s.Tamanho == reserva.Tamanho);
 
-                            }
-                        
+                        //se o stock - a quantidade é maior que 0
+                        if ((stock.Quantidade += dif) <= 0)
+                        {
+                            invalid = true;
+                            errorMessages.Add($"Não existe stock suficente para adicionar a reserva");
+
+                        }
+                        else
+                        {
+                            _context.Update(stock);
+
+                        }
+
 
                     }
                     else

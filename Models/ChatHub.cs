@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using ShoraWebsite.Data;
+using ShoraWebsite.Data.Migrations;
 
 namespace ShoraWebsite.Models
 {
@@ -27,7 +28,54 @@ namespace ShoraWebsite.Models
             }
         }
 
+        public async Task CheckIfIsVista(string user, string mensagemId)
+        {
+            if (string.IsNullOrWhiteSpace(user) || !int.TryParse(mensagemId, out int id))
+            {
+                return;
+            }
+            var identityUser = await _context.Users.SingleAsync(x => x.UserName == user);
 
+            if (identityUser == null)
+            {
+                return;
+
+            }
+
+            //aqui achamos o utilizador
+            //temos de encontrar agora a mensagem
+            var message = await _context.Messages.SingleAsync(x => x.Id == id);
+            if (message == null)
+            {
+                return;
+            }
+            //encontramos a mensagem
+
+
+
+            var userRoles = await _userManager.GetRolesAsync(identityUser);
+            var perfil = _context.Perfils.SingleOrDefault(x => x.UserId == identityUser.Id);
+
+            if (perfil == null)
+            {
+                return;
+            }
+
+            //Temos tudo necessario
+            bool admin = userRoles.Contains("Admin");
+
+            if (admin)
+            {
+                message.IsVistaAdmin = true;
+
+            }
+            else
+            {
+                message.IsVistaCliente = true;
+            }
+            _context.Update(message);
+            await _context.SaveChangesAsync();
+        }
         public async Task SendMessage(string reservaId, string user, string message)
         {
             var identityUser = _context.Users.Single(x => x.UserName == user);
@@ -62,12 +110,12 @@ namespace ShoraWebsite.Models
 
                     await _context.SaveChangesAsync();
 
-                    
+
                     var tempMessage = genereratedMessageClass;
                     tempMessage.Text = MessageWrapper.DecryptString(genereratedMessageClass.Text, perfil.Key, genereratedMessageClass.IV);
                     tempMessage.IV = "";
 
-                    await Clients.Group($"GroupReservation_{id}").SendAsync("ReceiveMessage", user, tempMessage);
+                    await Clients.Group($"GroupReservation_{id}").SendAsync("ReceiveMessage", user, genereratedMessageClass.Id, tempMessage);
 
                 }
 
@@ -75,6 +123,7 @@ namespace ShoraWebsite.Models
 
         }
 
+        //Se esta a ser chamada quer dizer que o user entrou na conversa
         public async Task AskChatHistory(string reservaId, string userName)
         {
 
@@ -83,13 +132,32 @@ namespace ShoraWebsite.Models
                 if (ReservaExiste(id))
                 {
                     var messages = _context.Messages.Include(x => x.User).Where(x => x.ReservaId == id).OrderBy(x => x.Timestamp).ToList();
+                   
+                    var identityUser = _context.Users.Single(x => x.UserName == userName);
 
-                    
+                    var userRoles = await _userManager.GetRolesAsync(identityUser);
+                   
+                    foreach (var message in messages)
+                    {
+                        //Temos tudo necessario
+                        bool admin = userRoles.Contains("Admin");
 
-                    
+                        if (admin)
+                        {
+                            message.IsVistaAdmin = true;
+
+                        }
+                        else
+                        {
+                            message.IsVistaCliente = true;
+                        }
+                    }
+                    _context.UpdateRange(messages);
+                    await _context.SaveChangesAsync();
+
                     List<Message> messagesDesencriptadas = new List<Message>();
 
-                    foreach(var message in messages)
+                    foreach (var message in messages)
                     {
                         var tempMessage = message;
                         var perfil = _context.Perfils.SingleOrDefault(x => x.UserId == message.UserId);
